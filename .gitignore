@@ -1,0 +1,5 @@
+/example/dist/
+/example/node_modules/
+/node_modules/
+/test/fixtures/out/
+/vendor/squirrel/*.log

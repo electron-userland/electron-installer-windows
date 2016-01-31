@@ -1,0 +1,19 @@
+{
+  "name": "bartest",
+  "description": "Bar test (without asar).",
+  "version": "0.0.1",
+  "license": "MIT",
+
+  "private": true,
+  "main": "index.js",
+
+  "copyright": "Copyright 2015 Daniel Perez Alvarez",
+  "projectId": "org.unindented.Bar",
+  "projectName": "Bar",
+  "productName": "Bar",
+  "productUrl": "https://unindented.org/",
+  "companyName": "Daniel Perez Alvarez",
+  "companyUrl": "https://unindented.org/",
+
+  "author": "Daniel Perez Alvarez <unindented@gmail.com> (https://unindented.org/)"
+}
