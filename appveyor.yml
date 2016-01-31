@@ -1,0 +1,29 @@
+version: "{build}"
+
+init:
+  - git config --global core.autocrlf input
+
+environment:
+  matrix:
+    - platform: x86
+      nodejs_version: '4.2'
+    - platform: x64
+      nodejs_version: '4.2'
+    - platform: x86
+      nodejs_version: '0.12'
+    - platform: x64
+      nodejs_version: '0.12'
+
+install:
+  - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version)
+  - npm install
+
+build: off
+
+before_test:
+  - node --version
+  - npm --version
+
+test_script:
+  - ps: npm test
+  - cmd: npm test
