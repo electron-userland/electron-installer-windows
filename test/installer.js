@@ -2,6 +2,7 @@
 
 var installer = require('..')
 
+var path = require('path')
 var chai = require('chai')
 var chaiFs = require('./helpers/fs')
 var expect = chai.expect
@@ -16,10 +17,11 @@ describe('module', function () {
         src: 'test/fixtures/app-with-asar/',
         dest: 'test/fixtures/out/',
         rename: function (dest, src) {
-          if (/\.exe$/.test(src)) {
-            src = '<%= name %>-<%= version %>-installer.exe'
+          var ext = path.extname(src)
+          if (ext === '.exe' || ext === '.msi') {
+            src = '<%= name %>-<%= version %>-installer' + ext
           }
-          return dest + src
+          return path.join(dest, src)
         },
 
         options: {
@@ -40,10 +42,11 @@ describe('module', function () {
         src: 'test/fixtures/app-without-asar/',
         dest: 'test/fixtures/out/',
         rename: function (dest, src) {
-          if (/\.exe$/.test(src)) {
-            src = '<%= name %>-<%= version %>-installer.exe'
+          var ext = path.extname(src)
+          if (ext === '.exe' || ext === '.msi') {
+            src = '<%= name %>-<%= version %>-installer' + ext
           }
-          return dest + src
+          return path.join(dest, src)
         },
 
         options: {

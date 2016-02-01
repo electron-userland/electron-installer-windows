@@ -45,7 +45,7 @@ describe('cli', function () {
 
   describe('with an app with asar', function (test) {
     beforeEach(function (done) {
-      spawn('./src/cli.js', [
+      spawn('node src/cli.js', [
         '--src', 'test/fixtures/app-with-asar/',
         '--dest', 'test/fixtures/out/foo/'
       ], done)
