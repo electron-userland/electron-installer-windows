@@ -15,8 +15,9 @@ var pkg = require('../package.json')
 var defaultLogger = debug(pkg.name)
 
 var defaultRename = function (dest, src) {
-  if (/\.exe$/.test(src)) {
-    src = '<%= name %>-<%= version %>-setup.exe'
+  var ext = path.extname(src)
+  if (ext === '.exe' || ext === '.msi') {
+    src = '<%= name %>-<%= version %>-setup' + ext
   }
   return path.join(dest, src)
 }
@@ -132,7 +133,9 @@ var getDefaults = function (data, callback) {
 
       certificateFile: undefined,
       certificatePassword: undefined,
-      signWithParams: undefined
+      signWithParams: undefined,
+
+      noMsi: false
     }
 
     callback(err, defaults)
@@ -320,6 +323,10 @@ var releasifyPackage = function (options, dir, pkg, callback) {
       '/f "' + path.resolve(options.certificateFile) + '"',
       '/p "' + options.certificatePassword + '"'
     ].join(' '))
+  }
+
+  if (options.noMsi) {
+    args.push('--no-msi')
   }
 
   exec(options, cmd, args, function (err) {
