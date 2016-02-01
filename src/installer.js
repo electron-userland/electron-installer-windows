@@ -348,7 +348,7 @@ var movePackage = function (options, dir, callback) {
         var dest = options.rename(options.dest, path.basename(file))
         dest = _.template(dest)(options)
         options.logger('Moving file ' + file + ' to ' + dest)
-        fs.move(file, dest, {clobber: true}, callback)
+        fs.move(file, dest, {clobber: true}, async.apply(fs.access, dest, callback))
       }, callback)
     }
   ], function (err) {
