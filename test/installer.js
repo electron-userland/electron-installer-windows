@@ -9,7 +9,7 @@ var expect = chai.expect
 chai.use(chaiFs)
 
 describe('module', function () {
-  this.timeout(10000)
+  this.timeout(20000)
 
   describe('with an app with asar', function (test) {
     beforeEach(function (done) {
