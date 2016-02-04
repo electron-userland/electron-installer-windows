@@ -92,4 +92,60 @@ describe('cli', function () {
       })
     }
   })
+
+  if (process.platform === 'win32') {
+    describe('with a signed app with asar', function (test) {
+      before(function (done) {
+        spawn('node src/cli.js', [
+          '--src', 'test/fixtures/app-with-asar/',
+          '--dest', 'test/fixtures/out/foo/',
+          '--certificateFile', 'test/fixtures/certificate.pfx',
+          '--certificatePassword', 'test'
+        ], done)
+      })
+
+      it('generates a `RELEASES` manifest', function (done) {
+        fs.access('test/fixtures/out/foo/RELEASES', done)
+      })
+
+      it('generates a `.nupkg` package', function (done) {
+        fs.access('test/fixtures/out/foo/footest-0.0.1-full.nupkg', done)
+      })
+
+      it('generates a `.exe` package', function (done) {
+        fs.access('test/fixtures/out/foo/footest-0.0.1-setup.exe', done)
+      })
+
+      it('generates a `.msi` package', function (done) {
+        fs.access('test/fixtures/out/foo/footest-0.0.1-setup.msi', done)
+      })
+    })
+
+    describe('with a signed app without asar', function (test) {
+      before(function (done) {
+        spawn('node src/cli.js', [
+          '--src', 'test/fixtures/app-without-asar/',
+          '--dest', 'test/fixtures/out/bar/',
+          '--certificateFile', 'test/fixtures/certificate.pfx',
+          '--certificatePassword', 'test'
+        ], done)
+      })
+
+      it('generates a `RELEASES` manifest', function (done) {
+        fs.access('test/fixtures/out/bar/RELEASES', done)
+      })
+
+      it('generates a `.nupkg` package', function (done) {
+        fs.access('test/fixtures/out/bar/bartest-0.0.1-full.nupkg', done)
+      })
+
+      it('generates a `.exe` package', function (done) {
+        fs.access('test/fixtures/out/bar/bartest-0.0.1-setup.exe', done)
+      })
+
+      it('generates a `.msi` package', function (done) {
+        fs.access('test/fixtures/out/bar/bartest-0.0.1-setup.msi', done)
+      })
+    })
+  }
 })
