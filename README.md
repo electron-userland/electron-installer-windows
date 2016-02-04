@@ -1,3 +1,5 @@
+![Electron Installer for Windows](resources/logo.png)
+
 # electron-installer-windows [![Version](https://img.shields.io/npm/v/electron-installer-windows.svg)](https://www.npmjs.com/package/electron-installer-windows) [![Build Status](https://img.shields.io/travis/unindented/electron-installer-windows.svg)](http://travis-ci.org/unindented/electron-installer-windows) [![Build Status](https://img.shields.io/appveyor/ci/unindented/electron-installer-windows.svg)](https://ci.appveyor.com/project/unindented/electron-installer-windows) [![Dependency Status](https://img.shields.io/gemnasium/unindented/electron-installer-windows.svg)](https://gemnasium.com/unindented/electron-installer-windows)
 
 > Create a Windows package for your Electron app.
