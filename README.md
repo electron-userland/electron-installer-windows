@@ -2,6 +2,8 @@
 
 > Create a Windows package for your Electron app.
 
+This tool relies on the awesome [Squirrel.Windows](https://github.com/Squirrel/Squirrel.Windows) framework written by [@paulcbetts](https://github.com/paulcbetts). It takes care of creating the actual package, signing it, dealing with updates, and many more things. Gotta give credit where credit is due, ya know.
+
 
 ## Installation
 
