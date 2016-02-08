@@ -2,9 +2,9 @@
 
 var installer = require('..')
 
-var fs = require('fs')
 var path = require('path')
 var rimraf = require('rimraf')
+var access = require('./helpers/access')
 var serve = require('./helpers/serve')
 
 describe('module', function () {
@@ -36,20 +36,20 @@ describe('module', function () {
     })
 
     it('generates a `RELEASES` manifest', function (done) {
-      fs.access(dest + 'RELEASES', done)
+      access(dest + 'RELEASES', done)
     })
 
     it('generates a `.nupkg` package', function (done) {
-      fs.access(dest + 'footest-0.0.1-full.nupkg', done)
+      access(dest + 'footest-0.0.1-full.nupkg', done)
     })
 
     it('generates a `.exe` package', function (done) {
-      fs.access(dest + 'footest-0.0.1-installer.exe', done)
+      access(dest + 'footest-0.0.1-installer.exe', done)
     })
 
     if (process.platform === 'win32') {
       it('generates a `.msi` package', function (done) {
-        fs.access(dest + 'footest-0.0.1-installer.msi', done)
+        access(dest + 'footest-0.0.1-installer.msi', done)
       })
     }
   })
@@ -84,20 +84,20 @@ describe('module', function () {
     })
 
     it('generates a `RELEASES` manifest', function (done) {
-      fs.access(dest + 'RELEASES', done)
+      access(dest + 'RELEASES', done)
     })
 
     it('generates a `.nupkg` package', function (done) {
-      fs.access(dest + 'bartest-0.0.1-full.nupkg', done)
+      access(dest + 'bartest-0.0.1-full.nupkg', done)
     })
 
     it('generates a `.exe` package', function (done) {
-      fs.access(dest + 'bartest-0.0.1-installer.exe', done)
+      access(dest + 'bartest-0.0.1-installer.exe', done)
     })
 
     if (process.platform === 'win32') {
       it('generates a `.msi` package', function (done) {
-        fs.access(dest + 'bartest-0.0.1-installer.msi', done)
+        access(dest + 'bartest-0.0.1-installer.msi', done)
       })
     }
   })
@@ -132,19 +132,19 @@ describe('module', function () {
       })
 
       it('generates a `RELEASES` manifest', function (done) {
-        fs.access(dest + 'RELEASES', done)
+        access(dest + 'RELEASES', done)
       })
 
       it('generates a `.nupkg` package', function (done) {
-        fs.access(dest + 'footest-0.0.1-full.nupkg', done)
+        access(dest + 'footest-0.0.1-full.nupkg', done)
       })
 
       it('generates a `.exe` package', function (done) {
-        fs.access(dest + 'footest-0.0.1-installer.exe', done)
+        access(dest + 'footest-0.0.1-installer.exe', done)
       })
 
       it('generates a `.msi` package', function (done) {
-        fs.access(dest + 'footest-0.0.1-installer.msi', done)
+        access(dest + 'footest-0.0.1-installer.msi', done)
       })
     })
 
@@ -180,19 +180,19 @@ describe('module', function () {
       })
 
       it('generates a `RELEASES` manifest', function (done) {
-        fs.access(dest + 'RELEASES', done)
+        access(dest + 'RELEASES', done)
       })
 
       it('generates a `.nupkg` package', function (done) {
-        fs.access(dest + 'bartest-0.0.1-full.nupkg', done)
+        access(dest + 'bartest-0.0.1-full.nupkg', done)
       })
 
       it('generates a `.exe` package', function (done) {
-        fs.access(dest + 'bartest-0.0.1-installer.exe', done)
+        access(dest + 'bartest-0.0.1-installer.exe', done)
       })
 
       it('generates a `.msi` package', function (done) {
-        fs.access(dest + 'bartest-0.0.1-installer.msi', done)
+        access(dest + 'bartest-0.0.1-installer.msi', done)
       })
     })
   }
@@ -235,26 +235,26 @@ describe('module', function () {
       })
 
       it('generates a `RELEASES` manifest', function (done) {
-        fs.access(dest + 'RELEASES', done)
+        access(dest + 'RELEASES', done)
       })
 
       it('does not generate a delta `.nupkg` package', function (done) {
-        fs.access(dest + 'footest-0.0.1-delta.nupkg', function (err) {
+        access(dest + 'footest-0.0.1-delta.nupkg', function (err) {
           done(!err)
         })
       })
 
       it('generates a full `.nupkg` package', function (done) {
-        fs.access(dest + 'footest-0.0.1-full.nupkg', done)
+        access(dest + 'footest-0.0.1-full.nupkg', done)
       })
 
       it('generates a `.exe` package', function (done) {
-        fs.access(dest + 'footest-0.0.1-installer.exe', done)
+        access(dest + 'footest-0.0.1-installer.exe', done)
       })
 
       if (process.platform === 'win32') {
         it('generates a `.msi` package', function (done) {
-          fs.access(dest + 'footest-0.0.1-installer.msi', done)
+          access(dest + 'footest-0.0.1-installer.msi', done)
         })
       }
     })
@@ -286,24 +286,24 @@ describe('module', function () {
       })
 
       it('generates a `RELEASES` manifest', function (done) {
-        fs.access(dest + 'RELEASES', done)
+        access(dest + 'RELEASES', done)
       })
 
       it('generates a delta `.nupkg` package', function (done) {
-        fs.access(dest + 'bartest-0.0.1-delta.nupkg', done)
+        access(dest + 'bartest-0.0.1-delta.nupkg', done)
       })
 
       it('generates a full `.nupkg` package', function (done) {
-        fs.access(dest + 'bartest-0.0.1-full.nupkg', done)
+        access(dest + 'bartest-0.0.1-full.nupkg', done)
       })
 
       it('generates a `.exe` package', function (done) {
-        fs.access(dest + 'bartest-0.0.1-installer.exe', done)
+        access(dest + 'bartest-0.0.1-installer.exe', done)
       })
 
       if (process.platform === 'win32') {
         it('generates a `.msi` package', function (done) {
-          fs.access(dest + 'bartest-0.0.1-installer.msi', done)
+          access(dest + 'bartest-0.0.1-installer.msi', done)
         })
       }
     })
