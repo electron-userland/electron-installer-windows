@@ -5,6 +5,14 @@ addons:
     packages:
       - wine
 
+deploy:
+  provider: npm
+  email: unindented@gmail.com
+  api_key:
+    secure: 3qigX9Jwpjf4yHIqzCulHInLmlhIA2lI5EI2jvDNQMhMuod8dSzpeTpwQ1yuidnz4y/k4urEvAiYODWQIjQMqR6+iCmSDKdQdJ1qeg9yGnOFBOARy/X5VOrzOpKSVCPBqkzsY0jS5iSkVqLMe6FDgSWkDFrzbV7yfAc4+7Ax61WaXwhyvLHZ6wg8ayrsgtICoNoo9jnZlmzBPhFj72eioiYuVKIxybP8+RC2vf07uy+udNup6rhVUJEnyj81sYr2A+2XfSllBcWYktUlqBXWUw2fAgDGtuGeuo8sNexhHcfChg1C1MjsbuVcCWxpjBFKShOFjMEsBSBiFzNhA4k7C29zQNrQkyROwqWpjd+tHxpns9beVW/38IKCSNjCsXNoMfCR+j4SJeugdnESHCiPIsjiJT+sMI8jQfS3AlOB496zSv6CLn1ABy5S4+F7xi+tZLShsj0cP9RL/3DdxUIhprz6ZXeF+jx5ydXySnS7J3KxeYvO+wZagX40ObZzoIIrCnv8JSclixRPmFarHk28VPH2HUKvFknkNU4ZI/l4RcEBxVG1sXuD+Wp0pn68UPicMybxPFGFirV4k3uGX1HWASDpppm107mxcVjB0721xW2EaG3ci6NUHqzWpJqAYQpx6TGSR5Tx8p0fcVBt5v8qgNn8tujcWPUZuN3OmkA5d88=
+  on:
+    tags: true
+
 env:
   - DEBUG="*" NODE_VERSION="4.2"
   - DEBUG="*" NODE_VERSION="0.12"
