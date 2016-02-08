@@ -133,6 +133,8 @@ var getDefaults = function (data, callback) {
       certificatePassword: undefined,
       signWithParams: undefined,
 
+      remoteReleases: undefined,
+
       noMsi: false
     }
 
@@ -285,6 +287,33 @@ var findPackage = function (options, dir, callback) {
 }
 
 /**
+ * Sync remote releases.
+ */
+var syncRemoteReleases = function (options, dir, pkg, callback) {
+  if (!options.remoteReleases) {
+    callback(null, dir, pkg)
+    return
+  }
+
+  options.logger('Syncing package at ' + dir)
+
+  var url = options.remoteReleases
+  var squirrelDir = path.join(dir, 'squirrel')
+
+  var cmd = path.resolve(__dirname, '../vendor/squirrel/SyncReleases.exe')
+  var args = [
+    '--url',
+    url,
+    '--releaseDir',
+    squirrelDir
+  ]
+
+  exec(options, cmd, args, function (err) {
+    callback(err && new Error('Error syncing remote releases: ' + (err.message || err)), dir, pkg)
+  })
+}
+
+/**
  * Releasify everything using `squirrel`.
  */
 var releasifyPackage = function (options, dir, pkg, callback) {
@@ -371,6 +400,7 @@ module.exports = function (data, callback) {
         async.apply(createContents, options),
         async.apply(createPackage, options),
         async.apply(findPackage, options),
+        async.apply(syncRemoteReleases, options),
         async.apply(releasifyPackage, options),
         async.apply(movePackage, options)
       ], function (err) {

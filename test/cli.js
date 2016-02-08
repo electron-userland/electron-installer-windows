@@ -1,151 +1,235 @@
 'use strict'
 
 var fs = require('fs')
-var child = require('child_process')
-
-var spawn = function (cmd, args, callback) {
-  var cmds = cmd.split(' ')
-  var spawnedProcess = null
-  var error = null
-  var stderr = ''
-
-  try {
-    spawnedProcess = child.spawn(cmds[0], cmds.slice(1).concat(args))
-  } catch (err) {
-    process.nextTick(function () {
-      callback(err, stderr)
-    })
-    return
-  }
-
-  spawnedProcess.stderr.on('data', function (data) {
-    stderr += data
-  })
-
-  spawnedProcess.on('error', function (err) {
-    error = error || err
-  })
-
-  spawnedProcess.on('close', function (code, signal) {
-    if (code !== 0) {
-      error = error || signal || code
-    }
-
-    callback(error && new Error('Error executing command (' + (error.message || error) + '): ' +
-      '\n' + cmd + ' ' + args.join(' ') + '\n' + stderr))
-  })
-}
+var rimraf = require('rimraf')
+var serve = require('./helpers/serve')
+var spawn = require('./helpers/spawn')
 
 describe('cli', function () {
   this.timeout(20000)
 
   describe('with an app with asar', function (test) {
+    var dest = 'test/fixtures/out/foo/'
+
     before(function (done) {
       spawn('node src/cli.js', [
         '--src', 'test/fixtures/app-with-asar/',
-        '--dest', 'test/fixtures/out/foo/'
+        '--dest', dest
       ], done)
     })
 
+    after(function (done) {
+      rimraf(dest, done)
+    })
+
     it('generates a `RELEASES` manifest', function (done) {
-      fs.access('test/fixtures/out/foo/RELEASES', done)
+      fs.access(dest + 'RELEASES', done)
     })
 
     it('generates a `.nupkg` package', function (done) {
-      fs.access('test/fixtures/out/foo/footest-0.0.1-full.nupkg', done)
+      fs.access(dest + 'footest-0.0.1-full.nupkg', done)
     })
 
     it('generates a `.exe` package', function (done) {
-      fs.access('test/fixtures/out/foo/footest-0.0.1-setup.exe', done)
+      fs.access(dest + 'footest-0.0.1-setup.exe', done)
     })
 
     if (process.platform === 'win32') {
       it('generates a `.msi` package', function (done) {
-        fs.access('test/fixtures/out/foo/footest-0.0.1-setup.msi', done)
+        fs.access(dest + 'footest-0.0.1-setup.msi', done)
       })
     }
   })
 
   describe('with an app without asar', function (test) {
+    var dest = 'test/fixtures/out/bar/'
+
     before(function (done) {
       spawn('node src/cli.js', [
         '--src', 'test/fixtures/app-without-asar/',
-        '--dest', 'test/fixtures/out/bar/'
+        '--dest', dest
       ], done)
     })
 
+    after(function (done) {
+      rimraf(dest, done)
+    })
+
     it('generates a `RELEASES` manifest', function (done) {
-      fs.access('test/fixtures/out/bar/RELEASES', done)
+      fs.access(dest + 'RELEASES', done)
     })
 
     it('generates a `.nupkg` package', function (done) {
-      fs.access('test/fixtures/out/bar/bartest-0.0.1-full.nupkg', done)
+      fs.access(dest + 'bartest-0.0.1-full.nupkg', done)
     })
 
     it('generates a `.exe` package', function (done) {
-      fs.access('test/fixtures/out/bar/bartest-0.0.1-setup.exe', done)
+      fs.access(dest + 'bartest-0.0.1-setup.exe', done)
     })
 
     if (process.platform === 'win32') {
       it('generates a `.msi` package', function (done) {
-        fs.access('test/fixtures/out/bar/bartest-0.0.1-setup.msi', done)
+        fs.access(dest + 'bartest-0.0.1-setup.msi', done)
       })
     }
   })
 
+  // Signing only works on Win32.
   if (process.platform === 'win32') {
     describe('with a signed app with asar', function (test) {
+      var dest = 'test/fixtures/out/foo/'
+
       before(function (done) {
         spawn('node src/cli.js', [
           '--src', 'test/fixtures/app-with-asar/',
-          '--dest', 'test/fixtures/out/foo/',
+          '--dest', dest,
           '--certificateFile', 'test/fixtures/certificate.pfx',
           '--certificatePassword', 'test'
         ], done)
       })
 
+      after(function (done) {
+        rimraf(dest, done)
+      })
+
       it('generates a `RELEASES` manifest', function (done) {
-        fs.access('test/fixtures/out/foo/RELEASES', done)
+        fs.access(dest + 'RELEASES', done)
       })
 
       it('generates a `.nupkg` package', function (done) {
-        fs.access('test/fixtures/out/foo/footest-0.0.1-full.nupkg', done)
+        fs.access(dest + 'footest-0.0.1-full.nupkg', done)
       })
 
       it('generates a `.exe` package', function (done) {
-        fs.access('test/fixtures/out/foo/footest-0.0.1-setup.exe', done)
+        fs.access(dest + 'footest-0.0.1-setup.exe', done)
       })
 
       it('generates a `.msi` package', function (done) {
-        fs.access('test/fixtures/out/foo/footest-0.0.1-setup.msi', done)
+        fs.access(dest + 'footest-0.0.1-setup.msi', done)
       })
     })
 
     describe('with a signed app without asar', function (test) {
+      var dest = 'test/fixtures/out/bar/'
+
       before(function (done) {
         spawn('node src/cli.js', [
           '--src', 'test/fixtures/app-without-asar/',
-          '--dest', 'test/fixtures/out/bar/',
+          '--dest', dest,
           '--certificateFile', 'test/fixtures/certificate.pfx',
           '--certificatePassword', 'test'
         ], done)
       })
 
+      after(function (done) {
+        rimraf(dest, done)
+      })
+
       it('generates a `RELEASES` manifest', function (done) {
-        fs.access('test/fixtures/out/bar/RELEASES', done)
+        fs.access(dest + 'RELEASES', done)
       })
 
       it('generates a `.nupkg` package', function (done) {
-        fs.access('test/fixtures/out/bar/bartest-0.0.1-full.nupkg', done)
+        fs.access(dest + 'bartest-0.0.1-full.nupkg', done)
       })
 
       it('generates a `.exe` package', function (done) {
-        fs.access('test/fixtures/out/bar/bartest-0.0.1-setup.exe', done)
+        fs.access(dest + 'bartest-0.0.1-setup.exe', done)
       })
 
       it('generates a `.msi` package', function (done) {
-        fs.access('test/fixtures/out/bar/bartest-0.0.1-setup.msi', done)
+        fs.access(dest + 'bartest-0.0.1-setup.msi', done)
       })
     })
   }
+
+  describe('with a releases server', function (test) {
+    var server
+
+    before(function (done) {
+      server = serve('test/fixtures/releases/', 3000, done)
+    })
+
+    after(function (done) {
+      server.close(done)
+    })
+
+    describe('with an app with asar with the same remote release', function (test) {
+      var dest = 'test/fixtures/out/foo/'
+
+      before(function (done) {
+        spawn('node src/cli.js', [
+          '--src', 'test/fixtures/app-with-asar/',
+          '--dest', dest,
+          '--remoteReleases', 'http://localhost:3000/foo/'
+        ], done)
+      })
+
+      after(function (done) {
+        rimraf(dest, done)
+      })
+
+      it('generates a `RELEASES` manifest', function (done) {
+        fs.access(dest + 'RELEASES', done)
+      })
+
+      it('does not generate a delta `.nupkg` package', function (done) {
+        fs.access(dest + 'footest-0.0.1-delta.nupkg', function (err) {
+          done(!err)
+        })
+      })
+
+      it('generates a full `.nupkg` package', function (done) {
+        fs.access(dest + 'footest-0.0.1-full.nupkg', done)
+      })
+
+      it('generates a `.exe` package', function (done) {
+        fs.access(dest + 'footest-0.0.1-setup.exe', done)
+      })
+
+      if (process.platform === 'win32') {
+        it('generates a `.msi` package', function (done) {
+          fs.access(dest + 'footest-0.0.1-setup.msi', done)
+        })
+      }
+    })
+
+    describe('with an app without asar with an old remote release', function (test) {
+      var dest = 'test/fixtures/out/bar/'
+
+      before(function (done) {
+        spawn('node src/cli.js', [
+          '--src', 'test/fixtures/app-without-asar/',
+          '--dest', dest,
+          '--remoteReleases', 'http://localhost:3000/bar/'
+        ], done)
+      })
+
+      after(function (done) {
+        rimraf(dest, done)
+      })
+
+      it('generates a `RELEASES` manifest', function (done) {
+        fs.access(dest + 'RELEASES', done)
+      })
+
+      it('generates a delta `.nupkg` package', function (done) {
+        fs.access(dest + 'bartest-0.0.1-delta.nupkg', done)
+      })
+
+      it('generates a full `.nupkg` package', function (done) {
+        fs.access(dest + 'bartest-0.0.1-full.nupkg', done)
+      })
+
+      it('generates a `.exe` package', function (done) {
+        fs.access(dest + 'bartest-0.0.1-setup.exe', done)
+      })
+
+      if (process.platform === 'win32') {
+        it('generates a `.msi` package', function (done) {
+          fs.access(dest + 'bartest-0.0.1-setup.msi', done)
+        })
+      }
+    })
+  })
 })

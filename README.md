@@ -304,6 +304,16 @@ Default: `undefined`
 
 Parameters to pass to `signtool`. Overrides `certificateFile` and `certificatePassword`.
 
+#### options.remoteReleases
+Type: `String`
+Default: `undefined`
+
+URL to your existing updates. If given, these will be downloaded to create delta updates.
+
+If you are using Amazon S3 to store your releases, read the documentation for [Squirrel.Windows on Amazon S3](https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/amazon-s3.md).
+
+If you are using GitHub, read the documentation for [Squirrel.Windows on GitHub](https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/github.md).
+
 
 ## Signing
 
