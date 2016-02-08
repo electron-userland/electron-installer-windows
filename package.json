@@ -1,7 +1,7 @@
 {
   "name": "electron-installer-windows",
   "description": "Create a Windows package for your Electron app.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "license": "MIT",
   "author": {
     "name": "Daniel Perez Alvarez",
