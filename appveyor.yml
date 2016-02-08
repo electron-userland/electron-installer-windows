@@ -4,6 +4,8 @@ init:
   - git config --global core.autocrlf input
 
 environment:
+  DEBUG: '*'
+
   matrix:
     - platform: x86
       nodejs_version: '4.2'
@@ -25,5 +27,4 @@ before_test:
   - npm --version
 
 test_script:
-  - ps: npm test
-  - cmd: npm test
+  - npm test
