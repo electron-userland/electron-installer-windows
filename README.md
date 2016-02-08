@@ -7,6 +7,17 @@
 This tool relies on the awesome [Squirrel.Windows](https://github.com/Squirrel/Squirrel.Windows) framework written by [@paulcbetts](https://github.com/paulcbetts). It takes care of creating the actual package, signing it, dealing with updates, and many more things. Gotta give credit where credit is due, ya know.
 
 
+## Requirements
+
+I'd recommend building your packages on your target platform, but if you have to run this on Mac OS X or Linux, you will need to install `mono` and `wine` through [Homebrew](http://brew.sh/):
+
+```
+$ brew install mono wine
+```
+
+You won't get an `.msi` installer though, only `.nupkg` and `.exe` installers. To get an `.msi` installer you'll need to run on Windows.
+
+
 ## Installation
 
 For use from command-line:
