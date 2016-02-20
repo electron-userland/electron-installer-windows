@@ -27,7 +27,7 @@
     "test": "npm run clean && npm run lint && npm run spec"
   },
   "dependencies": {
-    "asar": "^0.9.0",
+    "asar": "^0.10.0",
     "async": "^1.5.1",
     "debug": "^2.2.0",
     "fs-extra": "^0.26.0",
