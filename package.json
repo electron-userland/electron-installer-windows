@@ -40,7 +40,7 @@
     "chai": "^3.4.1",
     "eslint": "^2.2.0",
     "eslint-config-standard": "^5.1.0",
-    "eslint-plugin-promise": "^1.0.8",
+    "eslint-plugin-promise": "^2.0.0",
     "eslint-plugin-standard": "^2.0.0",
     "finalhandler": "^0.5.0",
     "mocha": "^2.4.2",
