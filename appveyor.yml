@@ -8,13 +8,13 @@ environment:
 
   matrix:
     - platform: x86
-      nodejs_version: '4.2'
+      nodejs_version: '6'
     - platform: x64
-      nodejs_version: '4.2'
+      nodejs_version: '6'
     - platform: x86
-      nodejs_version: '0.12'
+      nodejs_version: '4'
     - platform: x64
-      nodejs_version: '0.12'
+      nodejs_version: '4'
 
 install:
   - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version)
