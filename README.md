@@ -349,14 +349,14 @@ Boom, that's it. Now [get a standard code signing certificate](https://msdn.micr
 ## Maintenance
 
 ### Squirrel
-Current version: 1.2.3
+Current version: 1.4.4
 
 To update [Squirrel](https://github.com/Squirrel/Squirrel.Windows) to the latest version:
 
 ```
 $ rm vendor/squirrel/*
 $ mono vendor/nuget/NuGet.exe install squirrel.windows -OutputDirectory vendor/tmp/
-$ cp -r vendor/tmp/squirrel.windows.1.2.3/tools/* vendor/squirrel/
+$ cp -r vendor/tmp/squirrel.windows.1.4.4/tools/* vendor/squirrel/
 $ rm -rf vendor/tmp/
 ```
 
