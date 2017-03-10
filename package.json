@@ -46,6 +46,6 @@
     "mocha": "^3.0.0",
     "retry": "^0.10.0",
     "rimraf": "^2.5.1",
-    "serve-static": "^1.10.2"
+    "serve-static": "^1.11.2"
   }
 }
