@@ -3,13 +3,13 @@
 const _ = require('lodash')
 const asar = require('asar')
 const async = require('async')
-const child = require('child_process')
 const debug = require('debug')
 const fs = require('fs-extra')
 const glob = require('glob')
 const path = require('path')
 const temp = require('temp').track()
 
+const exec = require('./exec')
 const pkg = require('../package.json')
 
 const defaultLogger = debug(pkg.name)
@@ -20,48 +20,6 @@ const defaultRename = function (dest, src) {
     src = '<%= name %>-<%= version %>-setup' + ext
   }
   return path.join(dest, src)
-}
-
-/**
- * Execute a file.
- */
-const exec = function (options, file, args, callback) {
-  let execdProcess = null
-  let error = null
-  let stderr = ''
-
-  if (process.platform !== 'win32') {
-    args = [file].concat(args)
-    file = 'mono'
-  }
-
-  options.logger('Executing file ' + file + ' ' + args.join(' '))
-
-  try {
-    execdProcess = child.execFile(file, args)
-  } catch (err) {
-    process.nextTick(function () {
-      callback(err, stderr)
-    })
-    return
-  }
-
-  execdProcess.stderr.on('data', function (data) {
-    stderr += data
-  })
-
-  execdProcess.on('error', function (err) {
-    error = error || err
-  })
-
-  execdProcess.on('close', function (code, signal) {
-    if (code !== 0) {
-      error = error || signal || code
-    }
-
-    callback(error && new Error('Error executing file (' + (error.message || error) + '): ' +
-      '\n' + file + ' ' + args.join(' ') + '\n' + stderr))
-  })
 }
 
 /**
