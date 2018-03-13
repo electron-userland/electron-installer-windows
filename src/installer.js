@@ -7,8 +7,7 @@ const fs = require('fs-extra')
 const glob = require('glob-promise')
 const nodeify = require('nodeify')
 const path = require('path')
-const pify = require('pify')
-const temp = require('temp').track()
+const tmp = require('tmp-promise')
 
 const spawn = require('./spawn')
 
@@ -162,9 +161,9 @@ function createDir (options) {
   options.logger('Creating temporary directory')
   let tempDir
 
-  return pify(temp.mkdir)('electron-')
+  return tmp.dir({prefix: 'electron-', unsafeCleanup: true})
     .then(dir => {
-      tempDir = path.join(dir, options.name + '_' + options.version)
+      tempDir = path.join(dir.path, options.name + '_' + options.version)
       return fs.ensureDir(tempDir)
     })
     .then(() => tempDir)

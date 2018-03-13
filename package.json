@@ -34,8 +34,7 @@
     "glob-promise": "^3.4.0",
     "lodash": "^4.17.5",
     "nodeify": "^1.0.1",
-    "pify": "^3.0.0",
-    "temp": "^0.8.3",
+    "tmp-promise": "^1.0.4",
     "yargs": "^10.0.3"
   },
   "devDependencies": {
