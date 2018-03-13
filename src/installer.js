@@ -10,9 +10,8 @@ const path = require('path')
 const temp = require('temp').track()
 
 const exec = require('./exec')
-const pkg = require('../package.json')
 
-const defaultLogger = debug(pkg.name)
+const defaultLogger = debug('electron-installer-windows')
 
 const defaultRename = function (dest, src) {
   const ext = path.extname(src)
