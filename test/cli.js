@@ -3,8 +3,8 @@
 const chai = require('chai')
 const fs = require('fs-extra')
 const access = require('./helpers/access')
-const spawn = require('./helpers/spawn')
 const serve = require('./helpers/serve')
+const spawn = require('../src/spawn')
 
 describe('cli', function () {
   this.timeout(20000)
