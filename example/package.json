@@ -13,18 +13,20 @@
   "scripts": {
     "clean": "rimraf dist",
     "start": "electron .",
-    "exe32": "electron-packager . poopie --platform win32 --arch ia32 --out dist/ --ignore \"(dist|node_modules/electron.*)\" --icon resources/Icon.ico",
-    "exe64": "electron-packager . poopie --platform win32 --arch x64 --out dist/ --ignore \"(dist|node_modules/electron.*)\" --icon resources/Icon.ico",
+    "exe32": "electron-packager . poopie --platform win32 --arch ia32 --out dist/ --icon resources/Icon.ico",
+    "exe64": "electron-packager . poopie --platform win32 --arch x64 --out dist/ --icon resources/Icon.ico",
     "set32": "electron-installer-windows --src dist/poopie-win32-ia32/ --dest dist/installers/ia32/ --config config.json",
     "set64": "electron-installer-windows --src dist/poopie-win32-x64/ --dest dist/installers/x64/ --config config.json",
     "build": "npm run clean && npm run exe32 && npm run set32 && npm run exe64 && npm run set64"
   },
   "devDependencies": {
+    "electron": "*",
     "electron-installer-windows": "*",
     "electron-packager": "*",
-    "electron-prebuilt": "*",
-    "fs-plus": "*",
-    "rimraf": "*",
-    "yargs": "*"
+    "rimraf": "*"
+  },
+  "dependencies": {
+    "fs-plus": "^3.0.2",
+    "yargs": "^11.0.0"
   }
 }
