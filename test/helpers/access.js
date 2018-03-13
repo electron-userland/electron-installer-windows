@@ -12,6 +12,6 @@ module.exports = function (path) {
       .catch(retry)
   }, {
     retries: 3,
-    minTimeout: 1000
+    minTimeout: 500
   })
 }

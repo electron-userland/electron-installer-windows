@@ -5,7 +5,7 @@ const spawn = require('cross-spawn-promise')
 module.exports = function (cmd, args, logger) {
   if (logger) logger(`Executing command ${cmd} ${args.join(' ')}`)
 
-  spawn(cmd, args)
+  return spawn(cmd, args)
     .then(stdout => stdout.toString())
     .catch(err => {
       const stderr = err.stderr ? err.stderr.toString() : ''
