@@ -4,9 +4,13 @@ init:
   - git config --global core.autocrlf input
 
 environment:
-  DEBUG: '*'
+  DEBUG: 'electron-installer-windows'
 
   matrix:
+    - platform: x86
+      nodejs_version: '8'
+    - platform: x64
+      nodejs_version: '8'
     - platform: x86
       nodejs_version: '6'
     - platform: x64
@@ -17,7 +21,7 @@ environment:
       nodejs_version: '4'
 
 install:
-  - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version)
+  - ps: Install-Product node $env:nodejs_version
   - npm install
 
 build: off
