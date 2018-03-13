@@ -1,24 +1,25 @@
 'use strict'
 
-var installer = require('..')
+const chai = require('chai')
+const fs = require('fs-extra')
+const path = require('path')
+const access = require('./helpers/access')
+const serve = require('./helpers/serve')
 
-var path = require('path')
-var rimraf = require('rimraf')
-var access = require('./helpers/access')
-var serve = require('./helpers/serve')
+const installer = require('..')
 
 describe('module', function () {
   this.timeout(20000)
 
   describe('with an app with asar', function (test) {
-    var dest = 'test/fixtures/out/foo/'
+    const dest = 'test/fixtures/out/foo/'
 
-    before(function (done) {
-      installer({
+    before(function () {
+      return installer({
         src: 'test/fixtures/app-with-asar/',
         dest: dest,
         rename: function (dest, src) {
-          var ext = path.extname(src)
+          const ext = path.extname(src)
           if (ext === '.exe' || ext === '.msi') {
             src = '<%= name %>-<%= version %>-installer' + ext
           }
@@ -28,41 +29,31 @@ describe('module', function () {
         options: {
           productDescription: 'Just a test.'
         }
-      }, done)
+      })
     })
 
-    after(function (done) {
-      rimraf(dest, done)
-    })
+    after(() => fs.remove(dest))
 
-    it('generates a `RELEASES` manifest', function (done) {
-      access(dest + 'RELEASES', done)
-    })
+    it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
 
-    it('generates a `.nupkg` package', function (done) {
-      access(dest + 'footest-0.0.1-full.nupkg', done)
-    })
+    it('generates a `.nupkg` package', () => access(dest + 'footest-0.0.1-full.nupkg'))
 
-    it('generates a `.exe` package', function (done) {
-      access(dest + 'footest-0.0.1-installer.exe', done)
-    })
+    it('generates a `.exe` package', () => access(dest + 'footest-0.0.1-installer.exe'))
 
     if (process.platform === 'win32') {
-      it('generates a `.msi` package', function (done) {
-        access(dest + 'footest-0.0.1-installer.msi', done)
-      })
+      it('generates a `.msi` package', () => access(dest + 'footest-0.0.1-installer.msi'))
     }
   })
 
   describe('with an app without asar', function (test) {
-    var dest = 'test/fixtures/out/bar/'
+    const dest = 'test/fixtures/out/bar/'
 
-    before(function (done) {
-      installer({
+    before(() => {
+      return installer({
         src: 'test/fixtures/app-without-asar/',
         dest: dest,
         rename: function (dest, src) {
-          var ext = path.extname(src)
+          const ext = path.extname(src)
           if (ext === '.exe' || ext === '.msi') {
             src = '<%= name %>-<%= version %>-installer' + ext
           }
@@ -76,43 +67,33 @@ describe('module', function () {
             'Utility'
           ]
         }
-      }, done)
+      })
     })
 
-    after(function (done) {
-      rimraf(dest, done)
-    })
+    after(() => fs.remove(dest))
 
-    it('generates a `RELEASES` manifest', function (done) {
-      access(dest + 'RELEASES', done)
-    })
+    it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
 
-    it('generates a `.nupkg` package', function (done) {
-      access(dest + 'bartest-0.0.1-full.nupkg', done)
-    })
+    it('generates a `.nupkg` package', () => access(dest + 'bartest-0.0.1-full.nupkg'))
 
-    it('generates a `.exe` package', function (done) {
-      access(dest + 'bartest-0.0.1-installer.exe', done)
-    })
+    it('generates a `.exe` package', () => access(dest + 'bartest-0.0.1-installer.exe'))
 
     if (process.platform === 'win32') {
-      it('generates a `.msi` package', function (done) {
-        access(dest + 'bartest-0.0.1-installer.msi', done)
-      })
+      it('generates a `.msi` package', () => access(dest + 'bartest-0.0.1-installer.msi'))
     }
   })
 
   // Signing only works on Win32.
   if (process.platform === 'win32') {
     describe('with a signed app with asar', function (test) {
-      var dest = 'test/fixtures/out/foo/'
+      const dest = 'test/fixtures/out/foo/'
 
-      before(function (done) {
-        installer({
+      before(() => {
+        return installer({
           src: 'test/fixtures/app-with-asar/',
           dest: dest,
           rename: function (dest, src) {
-            var ext = path.extname(src)
+            const ext = path.extname(src)
             if (ext === '.exe' || ext === '.msi') {
               src = '<%= name %>-<%= version %>-installer' + ext
             }
@@ -124,39 +105,29 @@ describe('module', function () {
             certificateFile: 'test/fixtures/certificate.pfx',
             certificatePassword: 'test'
           }
-        }, done)
+        })
       })
 
-      after(function (done) {
-        rimraf(dest, done)
-      })
+      after(() => fs.remove(dest))
 
-      it('generates a `RELEASES` manifest', function (done) {
-        access(dest + 'RELEASES', done)
-      })
+      it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
 
-      it('generates a `.nupkg` package', function (done) {
-        access(dest + 'footest-0.0.1-full.nupkg', done)
-      })
+      it('generates a `.nupkg` package', () => access(dest + 'footest-0.0.1-full.nupkg'))
 
-      it('generates a `.exe` package', function (done) {
-        access(dest + 'footest-0.0.1-installer.exe', done)
-      })
+      it('generates a `.exe` package', () => access(dest + 'footest-0.0.1-installer.exe'))
 
-      it('generates a `.msi` package', function (done) {
-        access(dest + 'footest-0.0.1-installer.msi', done)
-      })
+      it('generates a `.msi` package', () => access(dest + 'footest-0.0.1-installer.msi'))
     })
 
     describe('with a signed app without asar', function (test) {
-      var dest = 'test/fixtures/out/bar/'
+      const dest = 'test/fixtures/out/bar/'
 
-      before(function (done) {
-        installer({
+      before(() => {
+        return installer({
           src: 'test/fixtures/app-without-asar/',
           dest: dest,
           rename: function (dest, src) {
-            var ext = path.extname(src)
+            const ext = path.extname(src)
             if (ext === '.exe' || ext === '.msi') {
               src = '<%= name %>-<%= version %>-installer' + ext
             }
@@ -172,51 +143,41 @@ describe('module', function () {
             certificateFile: 'test/fixtures/certificate.pfx',
             certificatePassword: 'test'
           }
-        }, done)
+        })
       })
 
-      after(function (done) {
-        rimraf(dest, done)
-      })
+      after(() => fs.remove(dest))
 
-      it('generates a `RELEASES` manifest', function (done) {
-        access(dest + 'RELEASES', done)
-      })
+      it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
 
-      it('generates a `.nupkg` package', function (done) {
-        access(dest + 'bartest-0.0.1-full.nupkg', done)
-      })
+      it('generates a `.nupkg` package', () => access(dest + 'bartest-0.0.1-full.nupkg'))
 
-      it('generates a `.exe` package', function (done) {
-        access(dest + 'bartest-0.0.1-installer.exe', done)
-      })
+      it('generates a `.exe` package', () => access(dest + 'bartest-0.0.1-installer.exe'))
 
-      it('generates a `.msi` package', function (done) {
-        access(dest + 'bartest-0.0.1-installer.msi', done)
-      })
+      it('generates a `.msi` package', () => access(dest + 'bartest-0.0.1-installer.msi'))
     })
   }
 
   describe('with a releases server', function (test) {
-    var server
+    let server
 
-    before(function (done) {
+    before((done) => {
       server = serve('test/fixtures/releases/', 3000, done)
     })
 
-    after(function (done) {
+    after((done) => {
       server.close(done)
     })
 
     describe('with an app with asar with the same remote release', function (test) {
-      var dest = 'test/fixtures/out/foo/'
+      const dest = 'test/fixtures/out/foo/'
 
-      before(function (done) {
-        installer({
+      before(() => {
+        return installer({
           src: 'test/fixtures/app-with-asar/',
           dest: dest,
           rename: function (dest, src) {
-            var ext = path.extname(src)
+            const ext = path.extname(src)
             if (ext === '.exe' || ext === '.msi') {
               src = '<%= name %>-<%= version %>-installer' + ext
             }
@@ -227,47 +188,39 @@ describe('module', function () {
             productDescription: 'Just a test.',
             remoteReleases: 'http://localhost:3000/foo/'
           }
-        }, done)
-      })
-
-      after(function (done) {
-        rimraf(dest, done)
-      })
-
-      it('generates a `RELEASES` manifest', function (done) {
-        access(dest + 'RELEASES', done)
-      })
-
-      it('does not generate a delta `.nupkg` package', function (done) {
-        access(dest + 'footest-0.0.1-delta.nupkg', function (err) {
-          done(!err)
         })
       })
 
-      it('generates a full `.nupkg` package', function (done) {
-        access(dest + 'footest-0.0.1-full.nupkg', done)
+      after(() => fs.remove(dest))
+
+      it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
+
+      it('does not generate a delta `.nupkg` package', () => {
+        return access(dest + 'footest-0.0.1-delta.nupkg')
+          .then(() => {
+            throw new Error('delta `.nupkg` was created')
+          })
+          .catch(error => chai.expect(error.message).to.have.string('no such file or directory'))
       })
 
-      it('generates a `.exe` package', function (done) {
-        access(dest + 'footest-0.0.1-installer.exe', done)
-      })
+      it('generates a full `.nupkg` package', () => access(dest + 'footest-0.0.1-full.nupkg'))
+
+      it('generates a `.exe` package', () => access(dest + 'footest-0.0.1-installer.exe'))
 
       if (process.platform === 'win32') {
-        it('generates a `.msi` package', function (done) {
-          access(dest + 'footest-0.0.1-installer.msi', done)
-        })
+        it('generates a `.msi` package', () => access(dest + 'footest-0.0.1-installer.msi'))
       }
     })
 
     describe('with an app without asar with an old remote release', function (test) {
-      var dest = 'test/fixtures/out/bar/'
+      const dest = 'test/fixtures/out/bar/'
 
-      before(function (done) {
-        installer({
+      before(() => {
+        return installer({
           src: 'test/fixtures/app-without-asar/',
           dest: dest,
           rename: function (dest, src) {
-            var ext = path.extname(src)
+            const ext = path.extname(src)
             if (ext === '.exe' || ext === '.msi') {
               src = '<%= name %>-<%= version %>-installer' + ext
             }
@@ -278,33 +231,21 @@ describe('module', function () {
             productDescription: 'Just a test.',
             remoteReleases: 'http://localhost:3000/bar/'
           }
-        }, done)
+        })
       })
 
-      after(function (done) {
-        rimraf(dest, done)
-      })
+      after(() => fs.remove(dest))
 
-      it('generates a `RELEASES` manifest', function (done) {
-        access(dest + 'RELEASES', done)
-      })
+      it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
 
-      it('generates a delta `.nupkg` package', function (done) {
-        access(dest + 'bartest-0.0.1-delta.nupkg', done)
-      })
+      it('generates a delta `.nupkg` package', () => access(dest + 'bartest-0.0.1-delta.nupkg'))
 
-      it('generates a full `.nupkg` package', function (done) {
-        access(dest + 'bartest-0.0.1-full.nupkg', done)
-      })
+      it('generates a full `.nupkg` package', () => access(dest + 'bartest-0.0.1-full.nupkg'))
 
-      it('generates a `.exe` package', function (done) {
-        access(dest + 'bartest-0.0.1-installer.exe', done)
-      })
+      it('generates a `.exe` package', () => access(dest + 'bartest-0.0.1-installer.exe'))
 
       if (process.platform === 'win32') {
-        it('generates a `.msi` package', function (done) {
-          access(dest + 'bartest-0.0.1-installer.msi', done)
-        })
+        it('generates a `.msi` package', () => access(dest + 'bartest-0.0.1-installer.msi'))
       }
     })
   })

@@ -1,36 +1,14 @@
 'use strict'
 
-var child = require('child_process')
+const spawn = require('cross-spawn-promise')
 
-module.exports = function (cmd, args, callback) {
-  var cmds = cmd.split(' ')
-  var spawnedProcess = null
-  var error = null
-  var stderr = ''
+module.exports = function (cmd, args, logger) {
+  if (logger) logger(`Executing command ${cmd} ${args.join(' ')}`)
 
-  try {
-    spawnedProcess = child.spawn(cmds[0], cmds.slice(1).concat(args))
-  } catch (err) {
-    process.nextTick(function () {
-      callback(err, stderr)
+  spawn(cmd, args)
+    .then(stdout => stdout.toString())
+    .catch(err => {
+      const stderr = err.stderr ? err.stderr.toString() : ''
+      throw new Error(`Error executing command (${err.message || err}):\n${cmd} ${args.join(' ')}\n${stderr}`)
     })
-    return
-  }
-
-  spawnedProcess.stderr.on('data', function (data) {
-    stderr += data
-  })
-
-  spawnedProcess.on('error', function (err) {
-    error = error || err
-  })
-
-  spawnedProcess.on('close', function (code, signal) {
-    if (code !== 0) {
-      error = error || signal || code
-    }
-
-    callback(error && new Error('Error executing command (' + (error.message || error) + '): ' +
-      '\n' + cmd + ' ' + args.join(' ') + '\n' + stderr))
-  })
 }
