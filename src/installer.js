@@ -2,11 +2,12 @@
 
 const _ = require('lodash')
 const asar = require('asar')
-const async = require('async')
 const debug = require('debug')
 const fs = require('fs-extra')
 const glob = require('glob')
+const nodeify = require('nodeify')
 const path = require('path')
+const pify = require('pify')
 const temp = require('temp').track()
 
 const exec = require('./exec')
@@ -21,108 +22,108 @@ const defaultRename = function (dest, src) {
   return path.join(dest, src)
 }
 
+function errorMessage (message, err) {
+  return `Error ${message}: ${err.message || err}`
+}
+
+function wrapError (message) {
+  return err => {
+    throw new Error(errorMessage(message, err))
+  }
+}
+
 /**
  * Read `package.json` either from `resources.app.asar` (if the app is packaged)
  * or from `resources/app/package.json` (if it is not).
  */
-const readMeta = function (options, callback) {
-  const withAsar = path.join(options.src, 'resources/app.asar')
-  const withoutAsar = path.join(options.src, 'resources/app/package.json')
+function readMeta (options) {
+  const appAsarPath = path.join(options.src, 'resources/app.asar')
+  const appPackageJSONPath = path.join(options.src, 'resources/app/package.json')
 
-  try {
-    fs.accessSync(withAsar)
-    options.logger('Reading package metadata from ' + withAsar)
-    callback(null, JSON.parse(asar.extractFile(withAsar, 'package.json')))
-    return
-  } catch (err) {
-  }
-
-  try {
-    options.logger('Reading package metadata from ' + withoutAsar)
-    callback(null, fs.readJsonSync(withoutAsar))
-  } catch (err) {
-    callback(new Error('Error reading package metadata: ' + (err.message || err)))
-  }
+  return fs.pathExists(appAsarPath)
+    .then(assarExists => {
+      if (assarExists) {
+        options.logger('Reading package metadata from ' + appAsarPath)
+        return JSON.parse(asar.extractFile(appAsarPath, 'package.json'))
+      } else {
+        options.logger('Reading package metadata from ' + appPackageJSONPath)
+        return fs.readJsonSync(appPackageJSONPath)
+      }
+    }).catch(wrapError('reading package metadata'))
 }
 
 /**
  * Get the hash of default options for the installer. Some come from the info
  * read from `package.json`, and some are hardcoded.
  */
-const getDefaults = function (data, callback) {
-  readMeta(data, function (err, pkg) {
-    pkg = pkg || {}
+function getDefaults (data) {
+  return readMeta(data)
+    .then(pkg => {
+      pkg = pkg || {}
+      const authors = pkg.author && [(typeof pkg.author === 'string'
+        ? pkg.author.replace(/\s+(<[^>]+>|\([^)]+\))/g, '')
+        : pkg.author.name
+      )]
 
-    const year = new Date().getFullYear()
+      return {
+        name: pkg.name || 'electron',
+        productName: pkg.productName || pkg.name,
+        description: pkg.description,
+        productDescription: pkg.productDescription || pkg.description,
+        version: pkg.version || '0.0.0',
 
-    const authors = pkg.author && [(typeof pkg.author === 'string'
-      ? pkg.author.replace(/\s+(<[^>]+>|\([^)]+\))/g, '')
-      : pkg.author.name
-    )]
+        copyright: pkg.copyright || (authors && 'Copyright \u00A9 ' + new Date().getFullYear() + ' ' + authors),
+        authors: authors,
+        owners: authors,
 
-    const defaults = {
-      name: pkg.name || 'electron',
-      productName: pkg.productName || pkg.name,
-      description: pkg.description,
-      productDescription: pkg.productDescription || pkg.description,
-      version: pkg.version || '0.0.0',
+        homepage: pkg.homepage || (pkg.author && (typeof pkg.author === 'string'
+          ? pkg.author.replace(/.*\(([^)]+)\).*/, '$1')
+          : pkg.author.url
+        )),
 
-      copyright: pkg.copyright || (authors && 'Copyright \u00A9 ' + year + ' ' + authors),
-      authors: authors,
-      owners: authors,
+        exe: pkg.name ? (pkg.name + '.exe') : 'electron.exe',
+        icon: path.resolve(__dirname, '../resources/icon.ico'),
+        animation: path.resolve(__dirname, '../resources/animation.gif'),
 
-      homepage: pkg.homepage || (pkg.author && (typeof pkg.author === 'string'
-        ? pkg.author.replace(/.*\(([^)]+)\).*/, '$1')
-        : pkg.author.url
-      )),
+        iconUrl: undefined,
+        licenseUrl: undefined,
+        requireLicenseAcceptance: false,
 
-      exe: pkg.name ? (pkg.name + '.exe') : 'electron.exe',
-      icon: path.resolve(__dirname, '../resources/icon.ico'),
-      animation: path.resolve(__dirname, '../resources/animation.gif'),
+        tags: [],
 
-      iconUrl: undefined,
-      licenseUrl: undefined,
-      requireLicenseAcceptance: false,
+        certificateFile: undefined,
+        certificatePassword: undefined,
+        signWithParams: undefined,
 
-      tags: [],
+        remoteReleases: undefined,
 
-      certificateFile: undefined,
-      certificatePassword: undefined,
-      signWithParams: undefined,
-
-      remoteReleases: undefined,
-
-      noMsi: false
-    }
-
-    callback(err, defaults)
-  })
+        noMsi: false
+      }
+    })
 }
 
 /**
  * Get the hash of options for the installer.
  */
-const getOptions = function (data, defaults, callback) {
+function getOptions (data, defaults) {
   // Flatten everything for ease of use.
   const options = _.defaults({}, data, data.options, defaults)
 
-  callback(null, options)
+  return options
 }
 
 /**
  * Fill in a template with the hash of options.
  */
-const generateTemplate = function (options, file, callback) {
+function generateTemplate (options, file) {
   options.logger('Generating template from ' + file)
 
-  async.waterfall([
-    async.apply(fs.readFile, file),
-    function (template, callback) {
+  return fs.readFile(file)
+    .then(template => {
       const result = _.template(template)(options)
       options.logger('Generated template from ' + file + '\n' + result)
-      callback(null, result)
-    }
-  ], callback)
+      return result
+    })
 }
 
 /**
@@ -130,85 +131,76 @@ const generateTemplate = function (options, file, callback) {
  *
  * See: https://docs.nuget.org/create/nuspec-reference
  */
-const createSpec = function (options, dir, callback) {
+function createSpec (options, dir) {
   const specSrc = path.resolve(__dirname, '../resources/spec.ejs')
   const specDest = path.join(dir, 'nuget', options.name + '.nuspec')
   options.logger('Creating spec file at ' + specDest)
 
-  async.waterfall([
-    async.apply(generateTemplate, options, specSrc),
-    async.apply(fs.outputFile, specDest)
-  ], function (err) {
-    callback(err && new Error('Error creating spec file: ' + (err.message || err)))
-  })
+  return generateTemplate(options, specSrc)
+    .then(data => fs.outputFile(specDest, data))
+    .catch(wrapError('creating spec file'))
 }
 
 /**
  * Copy the application into the package.
  */
-const createApplication = function (options, dir, callback) {
+function createApplication (options, dir) {
   const applicationDir = path.join(dir, options.name)
   const updateSrc = path.resolve(__dirname, '../vendor/squirrel/Squirrel.exe')
   const updateDest = path.join(applicationDir, 'Update.exe')
   options.logger('Copying application to ' + applicationDir)
 
-  async.waterfall([
-    async.apply(fs.copy, options.src, applicationDir),
-    async.apply(fs.copy, updateSrc, updateDest)
-  ], function (err) {
-    callback(err && new Error('Error copying application directory: ' + (err.message || err)))
-  })
+  return fs.copy(options.src, applicationDir)
+    .then(() => fs.copy(updateSrc, updateDest))
+    .catch(wrapError('copying application directory'))
 }
 
 /**
  * Create temporary directory where the contents of the package will live.
  */
-const createDir = function (options, callback) {
+function createDir (options) {
   options.logger('Creating temporary directory')
+  let tempDir
 
-  async.waterfall([
-    async.apply(temp.mkdir, 'electron-'),
-    function (dir, callback) {
-      dir = path.join(dir, options.name + '_' + options.version)
-      fs.ensureDir(dir, callback)
-    }
-  ], function (err, dir) {
-    callback(err && new Error('Error creating temporary directory: ' + (err.message || err)), dir)
-  })
+  return pify(temp.mkdir)('electron-')
+    .then(dir => {
+      tempDir = path.join(dir, options.name + '_' + options.version)
+      return fs.ensureDir(tempDir)
+    })
+    .then(() => tempDir)
+    .catch(wrapError('creating temporary directory'))
 }
 
 /**
  * Create subdirectories where intermediate files will live.
  */
-const createSubdirs = function (options, dir, callback) {
+function createSubdirs (options, dir) {
   options.logger('Creating subdirectories under ' + dir)
 
-  async.parallel([
-    async.apply(fs.ensureDir, path.join(dir, 'nuget')),
-    async.apply(fs.ensureDir, path.join(dir, 'squirrel'))
-  ], function (err) {
-    callback(err && new Error('Error creating temporary subdirectories: ' + (err.message || err)), dir)
-  })
+  return fs.ensureDir(path.join(dir, 'nuget'))
+    .then(() => fs.ensureDir(path.join(dir, 'squirrel')))
+    .then(() => dir)
+    .catch(wrapError('creating temporary subdirectories'))
 }
 
 /**
  * Create the contents of the package.
  */
-const createContents = function (options, dir, callback) {
+function createContents (options, dir) {
   options.logger('Creating contents of package')
 
-  async.parallel([
-    async.apply(createSpec, options, dir),
-    async.apply(createApplication, options, dir)
-  ], function (err) {
-    callback(err, dir)
-  })
+  return Promise.all([
+    createSpec,
+    createApplication
+  ].map(func => func(options, dir)))
+    .then(() => dir)
+    .catch(wrapError('creating contents of package'))
 }
 
 /**
  * Package everything using `nuget`.
  */
-const createPackage = function (options, dir, callback) {
+function createPackage (options, dir) {
   options.logger('Creating package at ' + dir)
 
   const applicationDir = path.join(dir, options.name)
@@ -226,30 +218,31 @@ const createPackage = function (options, dir, callback) {
     '-NoDefaultExcludes'
   ]
 
-  exec(options, cmd, args, function (err) {
-    callback(err && new Error('Error creating package: ' + (err.message || err)), dir)
-  })
+  return pify(exec)(options, cmd, args)
+    .then(() => dir)
+    .catch(wrapError('creating package'))
 }
 
 /**
  * Find the package just created.
  */
-const findPackage = function (options, dir, callback) {
+function findPackage (options, dir) {
   const packagePattern = path.join(dir, 'nuget', '*.nupkg')
   options.logger('Finding package with pattern ' + packagePattern)
 
-  glob(packagePattern, function (err, files) {
-    callback(err, dir, files[0])
-  })
+  return pify(glob)(packagePattern)
+    .then(files => ({
+      dir: dir,
+      pkg: files[0]
+    })).catch(wrapError('finding package with pattern'))
 }
 
 /**
  * Sync remote releases.
  */
-const syncRemoteReleases = function (options, dir, pkg, callback) {
+function syncRemoteReleases (options, dir, pkg) {
   if (!options.remoteReleases) {
-    callback(null, dir, pkg)
-    return
+    return {dir: dir, pkg: pkg}
   }
 
   options.logger('Syncing package at ' + dir)
@@ -265,15 +258,17 @@ const syncRemoteReleases = function (options, dir, pkg, callback) {
     squirrelDir
   ]
 
-  exec(options, cmd, args, function (err) {
-    callback(err && new Error('Error syncing remote releases: ' + (err.message || err)), dir, pkg)
-  })
+  return pify(exec)(options, cmd, args)
+    .then(() => ({
+      dir: dir,
+      pkg: pkg
+    })).catch(wrapError('syncing remote releases'))
 }
 
 /**
  * Releasify everything using `squirrel`.
  */
-const releasifyPackage = function (options, dir, pkg, callback) {
+const releasifyPackage = function (options, dir, pkg) {
   options.logger('Releasifying package at ' + dir)
 
   const squirrelDir = path.join(dir, 'squirrel')
@@ -313,31 +308,27 @@ const releasifyPackage = function (options, dir, pkg, callback) {
     args.push('--no-msi')
   }
 
-  exec(options, cmd, args, function (err) {
-    callback(err && new Error('Error releasifying package: ' + (err.message || err)), dir)
-  })
+  return pify(exec)(options, cmd, args)
+    .then(() => dir)
+    .catch(wrapError('releasifying package'))
 }
 
 /**
  * Move the package files to the specified destination.
  */
-const movePackage = function (options, dir, callback) {
+function movePackage (options, dir) {
   options.logger('Moving package to destination')
 
   const packagePattern = path.join(dir, 'squirrel', '*')
-  async.waterfall([
-    async.apply(glob, packagePattern),
-    function (files, callback) {
-      async.each(files, function (file) {
-        let dest = options.rename(options.dest, path.basename(file))
-        dest = _.template(dest)(options)
-        options.logger('Moving file ' + file + ' to ' + dest)
-        fs.move(file, dest, {clobber: true}, callback)
-      }, callback)
-    }
-  ], function (err) {
-    callback(err && new Error('Error moving package files: ' + (err.message || err)), dir)
-  })
+
+  pify(glob)(packagePattern)
+    .then(files => Promise.all(files.map(file => {
+      let dest = options.rename(options.dest, path.basename(file))
+      dest = _.template(dest)(options)
+      options.logger('Moving file ' + file + ' to ' + dest)
+      return fs.move(file, dest, {clobber: true})
+    })))
+    .catch(wrapError('moving package files'))
 }
 
 /* ************************************************************************** */
@@ -346,31 +337,27 @@ module.exports = function (data, callback) {
   data.rename = data.rename || defaultRename
   data.logger = data.logger || defaultLogger
 
-  async.waterfall([
-    async.apply(getDefaults, data),
-    async.apply(getOptions, data),
-    function (options, callback) {
-      data.logger('Creating package with options\n' + JSON.stringify(options, null, 2))
-      async.waterfall([
-        async.apply(createDir, options),
-        async.apply(createSubdirs, options),
-        async.apply(createContents, options),
-        async.apply(createPackage, options),
-        async.apply(findPackage, options),
-        async.apply(syncRemoteReleases, options),
-        async.apply(releasifyPackage, options),
-        async.apply(movePackage, options)
-      ], function (err) {
-        callback(err, options)
-      })
-    }
-  ], function (err, options) {
-    if (!err) {
-      data.logger('Successfully created package at ' + options.dest)
-    } else {
-      data.logger('Error creating package: ' + (err.message || err))
-    }
+  let options
 
-    callback(err, options)
-  })
+  const promise = getDefaults(data)
+    .then(defaults => getOptions(data, defaults))
+    .then(generatedOptions => {
+      options = generatedOptions
+      return data.logger('Creating package with options\n' + JSON.stringify(options, null, 2))
+    }).then(() => createDir(options))
+    .then(dir => createSubdirs(options, dir))
+    .then(dir => createContents(options, dir))
+    .then(dir => createPackage(options, dir))
+    .then(dir => findPackage(options, dir))
+    .then(data => syncRemoteReleases(options, data.dir, data.pkg))
+    .then(data => releasifyPackage(options, data.dir, data.pkg))
+    .then(dir => movePackage(options, dir))
+    .then(() => {
+      data.logger(`Successfully created package at ${options.dest}`)
+    }).catch(err => {
+      data.logger(errorMessage('creating package', err))
+      throw err
+    })
+
+  return nodeify(promise, callback)
 }
