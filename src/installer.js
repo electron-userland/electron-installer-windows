@@ -4,13 +4,13 @@ const _ = require('lodash')
 const asar = require('asar')
 const debug = require('debug')
 const fs = require('fs-extra')
-const glob = require('glob')
+const glob = require('glob-promise')
 const nodeify = require('nodeify')
 const path = require('path')
 const pify = require('pify')
 const temp = require('temp').track()
 
-const exec = require('./exec')
+const spawn = require('./spawn')
 
 const defaultLogger = debug('electron-installer-windows')
 
@@ -218,7 +218,7 @@ function createPackage (options, dir) {
     '-NoDefaultExcludes'
   ]
 
-  return pify(exec)(options, cmd, args)
+  return spawn(cmd, args, options.logger)
     .then(() => dir)
     .catch(wrapError('creating package'))
 }
@@ -230,7 +230,7 @@ function findPackage (options, dir) {
   const packagePattern = path.join(dir, 'nuget', '*.nupkg')
   options.logger('Finding package with pattern ' + packagePattern)
 
-  return pify(glob)(packagePattern)
+  return glob(packagePattern)
     .then(files => ({
       dir: dir,
       pkg: files[0]
@@ -258,7 +258,7 @@ function syncRemoteReleases (options, dir, pkg) {
     squirrelDir
   ]
 
-  return pify(exec)(options, cmd, args)
+  return spawn(cmd, args, options.logger)
     .then(() => ({
       dir: dir,
       pkg: pkg
@@ -308,7 +308,7 @@ const releasifyPackage = function (options, dir, pkg) {
     args.push('--no-msi')
   }
 
-  return pify(exec)(options, cmd, args)
+  return spawn(cmd, args, options.logger)
     .then(() => dir)
     .catch(wrapError('releasifying package'))
 }
@@ -321,7 +321,7 @@ function movePackage (options, dir) {
 
   const packagePattern = path.join(dir, 'squirrel', '*')
 
-  pify(glob)(packagePattern)
+  return glob(packagePattern)
     .then(files => Promise.all(files.map(file => {
       let dest = options.rename(options.dest, path.basename(file))
       dest = _.template(dest)(options)
