@@ -99,13 +99,10 @@ describe('cli', function () {
   describe('with a releases server', function (test) {
     let server
 
-    before((done) => {
-      server = serve('test/fixtures/releases/', 3000, done)
-    })
+    before(() => serve('test/fixtures/releases/', 3000)
+      .then((ser) => (server = ser)))
 
-    after((done) => {
-      server.close(done)
-    })
+    after(() => server.close())
 
     describe('with an app with asar with the same remote release', function (test) {
       const dest = 'test/fixtures/out/foo/'

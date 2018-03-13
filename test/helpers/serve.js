@@ -1,18 +1,18 @@
 'use strict'
 
-var http = require('http')
+var http = require('http-promise')
 var finalHandler = require('finalhandler')
 var serveStatic = require('serve-static')
 
-module.exports = function (path, port, callback) {
+module.exports = function (path, port) {
   var serve = serveStatic(path)
 
-  var server = http.createServer(function (req, res) {
+  var server = http.createServerAsync((req, res) => {
     var handler = finalHandler(req, res)
     serve(req, res, handler)
   })
 
-  server.listen(port, callback)
-
   return server
+    .listen(port)
+    .then(() => server)
 }
