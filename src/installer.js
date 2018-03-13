@@ -1,21 +1,21 @@
 'use strict'
 
-var _ = require('lodash')
-var asar = require('asar')
-var async = require('async')
-var child = require('child_process')
-var debug = require('debug')
-var fs = require('fs-extra')
-var glob = require('glob')
-var path = require('path')
-var temp = require('temp').track()
+const _ = require('lodash')
+const asar = require('asar')
+const async = require('async')
+const child = require('child_process')
+const debug = require('debug')
+const fs = require('fs-extra')
+const glob = require('glob')
+const path = require('path')
+const temp = require('temp').track()
 
-var pkg = require('../package.json')
+const pkg = require('../package.json')
 
-var defaultLogger = debug(pkg.name)
+const defaultLogger = debug(pkg.name)
 
-var defaultRename = function (dest, src) {
-  var ext = path.extname(src)
+const defaultRename = function (dest, src) {
+  const ext = path.extname(src)
   if (ext === '.exe' || ext === '.msi') {
     src = '<%= name %>-<%= version %>-setup' + ext
   }
@@ -25,10 +25,10 @@ var defaultRename = function (dest, src) {
 /**
  * Execute a file.
  */
-var exec = function (options, file, args, callback) {
-  var execdProcess = null
-  var error = null
-  var stderr = ''
+const exec = function (options, file, args, callback) {
+  let execdProcess = null
+  let error = null
+  let stderr = ''
 
   if (process.platform !== 'win32') {
     args = [file].concat(args)
@@ -68,9 +68,9 @@ var exec = function (options, file, args, callback) {
  * Read `package.json` either from `resources.app.asar` (if the app is packaged)
  * or from `resources/app/package.json` (if it is not).
  */
-var readMeta = function (options, callback) {
-  var withAsar = path.join(options.src, 'resources/app.asar')
-  var withoutAsar = path.join(options.src, 'resources/app/package.json')
+const readMeta = function (options, callback) {
+  const withAsar = path.join(options.src, 'resources/app.asar')
+  const withoutAsar = path.join(options.src, 'resources/app/package.json')
 
   try {
     fs.accessSync(withAsar)
@@ -92,18 +92,18 @@ var readMeta = function (options, callback) {
  * Get the hash of default options for the installer. Some come from the info
  * read from `package.json`, and some are hardcoded.
  */
-var getDefaults = function (data, callback) {
+const getDefaults = function (data, callback) {
   readMeta(data, function (err, pkg) {
     pkg = pkg || {}
 
-    var year = new Date().getFullYear()
+    const year = new Date().getFullYear()
 
-    var authors = pkg.author && [(typeof pkg.author === 'string'
+    const authors = pkg.author && [(typeof pkg.author === 'string'
       ? pkg.author.replace(/\s+(<[^>]+>|\([^)]+\))/g, '')
       : pkg.author.name
     )]
 
-    var defaults = {
+    const defaults = {
       name: pkg.name || 'electron',
       productName: pkg.productName || pkg.name,
       description: pkg.description,
@@ -145,9 +145,9 @@ var getDefaults = function (data, callback) {
 /**
  * Get the hash of options for the installer.
  */
-var getOptions = function (data, defaults, callback) {
+const getOptions = function (data, defaults, callback) {
   // Flatten everything for ease of use.
-  var options = _.defaults({}, data, data.options, defaults)
+  const options = _.defaults({}, data, data.options, defaults)
 
   callback(null, options)
 }
@@ -155,13 +155,13 @@ var getOptions = function (data, defaults, callback) {
 /**
  * Fill in a template with the hash of options.
  */
-var generateTemplate = function (options, file, callback) {
+const generateTemplate = function (options, file, callback) {
   options.logger('Generating template from ' + file)
 
   async.waterfall([
     async.apply(fs.readFile, file),
     function (template, callback) {
-      var result = _.template(template)(options)
+      const result = _.template(template)(options)
       options.logger('Generated template from ' + file + '\n' + result)
       callback(null, result)
     }
@@ -173,9 +173,9 @@ var generateTemplate = function (options, file, callback) {
  *
  * See: https://docs.nuget.org/create/nuspec-reference
  */
-var createSpec = function (options, dir, callback) {
-  var specSrc = path.resolve(__dirname, '../resources/spec.ejs')
-  var specDest = path.join(dir, 'nuget', options.name + '.nuspec')
+const createSpec = function (options, dir, callback) {
+  const specSrc = path.resolve(__dirname, '../resources/spec.ejs')
+  const specDest = path.join(dir, 'nuget', options.name + '.nuspec')
   options.logger('Creating spec file at ' + specDest)
 
   async.waterfall([
@@ -189,10 +189,10 @@ var createSpec = function (options, dir, callback) {
 /**
  * Copy the application into the package.
  */
-var createApplication = function (options, dir, callback) {
-  var applicationDir = path.join(dir, options.name)
-  var updateSrc = path.resolve(__dirname, '../vendor/squirrel/Squirrel.exe')
-  var updateDest = path.join(applicationDir, 'Update.exe')
+const createApplication = function (options, dir, callback) {
+  const applicationDir = path.join(dir, options.name)
+  const updateSrc = path.resolve(__dirname, '../vendor/squirrel/Squirrel.exe')
+  const updateDest = path.join(applicationDir, 'Update.exe')
   options.logger('Copying application to ' + applicationDir)
 
   async.waterfall([
@@ -206,7 +206,7 @@ var createApplication = function (options, dir, callback) {
 /**
  * Create temporary directory where the contents of the package will live.
  */
-var createDir = function (options, callback) {
+const createDir = function (options, callback) {
   options.logger('Creating temporary directory')
 
   async.waterfall([
@@ -223,7 +223,7 @@ var createDir = function (options, callback) {
 /**
  * Create subdirectories where intermediate files will live.
  */
-var createSubdirs = function (options, dir, callback) {
+const createSubdirs = function (options, dir, callback) {
   options.logger('Creating subdirectories under ' + dir)
 
   async.parallel([
@@ -237,7 +237,7 @@ var createSubdirs = function (options, dir, callback) {
 /**
  * Create the contents of the package.
  */
-var createContents = function (options, dir, callback) {
+const createContents = function (options, dir, callback) {
   options.logger('Creating contents of package')
 
   async.parallel([
@@ -251,15 +251,15 @@ var createContents = function (options, dir, callback) {
 /**
  * Package everything using `nuget`.
  */
-var createPackage = function (options, dir, callback) {
+const createPackage = function (options, dir, callback) {
   options.logger('Creating package at ' + dir)
 
-  var applicationDir = path.join(dir, options.name)
-  var nugetDir = path.join(dir, 'nuget')
-  var specFile = path.join(nugetDir, options.name + '.nuspec')
+  const applicationDir = path.join(dir, options.name)
+  const nugetDir = path.join(dir, 'nuget')
+  const specFile = path.join(nugetDir, options.name + '.nuspec')
 
-  var cmd = path.resolve(__dirname, '../vendor/nuget/NuGet.exe')
-  var args = [
+  const cmd = path.resolve(__dirname, '../vendor/nuget/NuGet.exe')
+  const args = [
     'pack',
     specFile,
     '-BasePath',
@@ -277,8 +277,8 @@ var createPackage = function (options, dir, callback) {
 /**
  * Find the package just created.
  */
-var findPackage = function (options, dir, callback) {
-  var packagePattern = path.join(dir, 'nuget', '*.nupkg')
+const findPackage = function (options, dir, callback) {
+  const packagePattern = path.join(dir, 'nuget', '*.nupkg')
   options.logger('Finding package with pattern ' + packagePattern)
 
   glob(packagePattern, function (err, files) {
@@ -289,7 +289,7 @@ var findPackage = function (options, dir, callback) {
 /**
  * Sync remote releases.
  */
-var syncRemoteReleases = function (options, dir, pkg, callback) {
+const syncRemoteReleases = function (options, dir, pkg, callback) {
   if (!options.remoteReleases) {
     callback(null, dir, pkg)
     return
@@ -297,11 +297,11 @@ var syncRemoteReleases = function (options, dir, pkg, callback) {
 
   options.logger('Syncing package at ' + dir)
 
-  var url = options.remoteReleases
-  var squirrelDir = path.join(dir, 'squirrel')
+  const url = options.remoteReleases
+  const squirrelDir = path.join(dir, 'squirrel')
 
-  var cmd = path.resolve(__dirname, '../vendor/squirrel/SyncReleases.exe')
-  var args = [
+  const cmd = path.resolve(__dirname, '../vendor/squirrel/SyncReleases.exe')
+  const args = [
     '--url',
     url,
     '--releaseDir',
@@ -316,14 +316,14 @@ var syncRemoteReleases = function (options, dir, pkg, callback) {
 /**
  * Releasify everything using `squirrel`.
  */
-var releasifyPackage = function (options, dir, pkg, callback) {
+const releasifyPackage = function (options, dir, pkg, callback) {
   options.logger('Releasifying package at ' + dir)
 
-  var squirrelDir = path.join(dir, 'squirrel')
+  const squirrelDir = path.join(dir, 'squirrel')
 
-  var cmd = path.resolve(__dirname, '../vendor/squirrel/' +
+  const cmd = path.resolve(__dirname, '../vendor/squirrel/' +
     (process.platform === 'win32' ? 'Squirrel.com' : 'Squirrel-Mono.exe'))
-  var args = [
+  const args = [
     '--releasify',
     pkg,
     '--releaseDir',
@@ -364,15 +364,15 @@ var releasifyPackage = function (options, dir, pkg, callback) {
 /**
  * Move the package files to the specified destination.
  */
-var movePackage = function (options, dir, callback) {
+const movePackage = function (options, dir, callback) {
   options.logger('Moving package to destination')
 
-  var packagePattern = path.join(dir, 'squirrel', '*')
+  const packagePattern = path.join(dir, 'squirrel', '*')
   async.waterfall([
     async.apply(glob, packagePattern),
     function (files, callback) {
       async.each(files, function (file) {
-        var dest = options.rename(options.dest, path.basename(file))
+        let dest = options.rename(options.dest, path.basename(file))
         dest = _.template(dest)(options)
         options.logger('Moving file ' + file + ' to ' + dest)
         fs.move(file, dest, {clobber: true}, callback)
