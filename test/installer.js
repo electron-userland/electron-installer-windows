@@ -1,6 +1,6 @@
 'use strict'
 
-const { describeInstaller } = require('./helpers/describe_installer')
+const describeInstaller = require('./helpers/describe_installer')
 const serve = require('./helpers/serve')
 
 describe('module', function () {

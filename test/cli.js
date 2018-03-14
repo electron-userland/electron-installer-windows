@@ -1,6 +1,6 @@
 'use strict'
 
-const { describeCLI } = require('./helpers/describe_cli')
+const describeCLI = require('./helpers/describe_cli')
 const serve = require('./helpers/serve')
 
 describe('cli', function () {
