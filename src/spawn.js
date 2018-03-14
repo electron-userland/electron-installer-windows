@@ -3,7 +3,12 @@
 const spawn = require('cross-spawn-promise')
 
 module.exports = function (cmd, args, logger) {
-  if (logger) logger(`Executing command ${cmd} ${args.join(' ')}`)
+  if (process.platform !== 'win32') {
+    args = [cmd].concat(args)
+    cmd = 'mono'
+  }
+
+  if (logger) logger(`Executing command: ${cmd} ${args.join(' ')}`)
 
   return spawn(cmd, args)
     .then(stdout => stdout.toString())

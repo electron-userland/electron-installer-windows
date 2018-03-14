@@ -219,7 +219,7 @@ function createPackage (options, dir) {
 
   return spawn(cmd, args, options.logger)
     .then(() => dir)
-    .catch(wrapError('creating package'))
+    .catch(wrapError('creating package with NuGet'))
 }
 
 /**
