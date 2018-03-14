@@ -21,10 +21,9 @@
     "electron-installer-windows": "src/cli.js"
   },
   "scripts": {
-    "clean": "rimraf test/fixtures/out",
     "lint": "eslint .",
     "spec": "mocha",
-    "test": "npm run clean && npm run lint && npm run spec"
+    "test": "npm run lint && npm run spec"
   },
   "dependencies": {
     "asar": "^0.14.3",

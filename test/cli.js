@@ -1,98 +1,25 @@
 'use strict'
 
-const chai = require('chai')
-const fs = require('fs-extra')
-const access = require('./helpers/access')
+const { describeCLI } = require('./helpers/describe_cli')
 const serve = require('./helpers/serve')
-const spawn = require('../src/spawn')
 
 describe('cli', function () {
   this.timeout(20000)
 
-  describe('with an app with asar', function (test) {
-    const dest = 'test/fixtures/out/foo/'
+  describeCLI('with an app with asar', true)
 
-    before(() => spawn('./src/cli.js', [
-      '--src', 'test/fixtures/app-with-asar/',
-      '--dest', dest
-    ]))
-
-    after(() => fs.remove(dest))
-
-    it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
-
-    it('generates a `.nupkg` package', () => access(dest + 'footest-0.0.1-full.nupkg'))
-
-    it('generates a `.exe` package', () => access(dest + 'footest-0.0.1-setup.exe'))
-
-    if (process.platform === 'win32') {
-      it('generates a `.msi` package', () => access(dest + 'footest-0.0.1-setup.msi'))
-    }
-  })
-
-  describe('with an app without asar', function (test) {
-    const dest = 'test/fixtures/out/bar/'
-
-    before(() => spawn('./src/cli.js', [
-      '--src', 'test/fixtures/app-without-asar/',
-      '--dest', dest
-    ]))
-
-    after(() => fs.remove(dest))
-
-    it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
-
-    it('generates a `.nupkg` package', () => access(dest + 'bartest-0.0.1-full.nupkg'))
-
-    it('generates a `.exe` package', () => access(dest + 'bartest-0.0.1-setup.exe'))
-
-    if (process.platform === 'win32') {
-      it('generates a `.msi` package', () => access(dest + 'bartest-0.0.1-setup.msi'))
-    }
-  })
+  describeCLI('with an app without asar', false)
 
   // Signing only works on Win32.
   if (process.platform === 'win32') {
-    describe('with a signed app with asar', function (test) {
-      const dest = 'test/fixtures/out/foo/'
-
-      before(() => spawn('./src/cli.js', [
-        '--src', 'test/fixtures/app-with-asar/',
-        '--dest', dest,
-        '--certificateFile', 'test/fixtures/certificate.pfx',
-        '--certificatePassword', 'test'
-      ]))
-
-      after(() => fs.remove(dest))
-
-      it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
-
-      it('generates a `.nupkg` package', () => access(dest + 'footest-0.0.1-full.nupkg'))
-
-      it('generates a `.exe` package', () => access(dest + 'footest-0.0.1-setup.exe'))
-
-      it('generates a `.msi` package', () => access(dest + 'footest-0.0.1-setup.msi'))
+    describeCLI('with a signed app with asar', true, {
+      certificateFile: 'test/fixtures/certificate.pfx',
+      certificatePassword: 'test'
     })
 
-    describe('with a signed app without asar', function (test) {
-      const dest = 'test/fixtures/out/bar/'
-
-      before(() => spawn('./src/cli.js', [
-        '--src', 'test/fixtures/app-without-asar/',
-        '--dest', dest,
-        '--certificateFile', 'test/fixtures/certificate.pfx',
-        '--certificatePassword', 'test'
-      ]))
-
-      after(() => fs.remove(dest))
-
-      it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
-
-      it('generates a `.nupkg` package', () => access(dest + 'bartest-0.0.1-full.nupkg'))
-
-      it('generates a `.exe` package', () => access(dest + 'bartest-0.0.1-setup.exe'))
-
-      it('generates a `.msi` package', () => access(dest + 'bartest-0.0.1-setup.msi'))
+    describeCLI('with a signed app without asar', false, {
+      certificateFile: 'test/fixtures/certificate.pfx',
+      certificatePassword: 'test'
     })
   }
 
@@ -100,62 +27,16 @@ describe('cli', function () {
     let server
 
     before(() => serve('test/fixtures/releases/', 3000)
-      .then((ser) => (server = ser)))
+      .then(ser => (server = ser)))
 
     after(() => server.close())
 
-    describe('with an app with asar with the same remote release', function (test) {
-      const dest = 'test/fixtures/out/foo/'
-
-      before(() => spawn('./src/cli.js', [
-        '--src', 'test/fixtures/app-with-asar/',
-        '--dest', dest,
-        '--remoteReleases', 'http://localhost:3000/foo/'
-      ]))
-
-      after(() => fs.remove(dest))
-
-      it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
-
-      it('does not generate a delta `.nupkg` package', () => {
-        return access(dest + 'footest-0.0.1-delta.nupkg')
-          .then(() => {
-            throw new Error('delta `.nupkg` was created')
-          })
-          .catch(error => chai.expect(error.message).to.have.string('no such file or directory'))
-      })
-
-      it('generates a full `.nupkg` package', () => access(dest + 'footest-0.0.1-full.nupkg'))
-
-      it('generates a `.exe` package', () => access(dest + 'footest-0.0.1-setup.exe'))
-
-      if (process.platform === 'win32') {
-        it('generates a `.msi` package', () => access(dest + 'footest-0.0.1-setup.msi'))
-      }
+    describeCLI('with a signed app with asar', true, {
+      remoteReleases: 'http://localhost:3000/foo/'
     })
 
-    describe('with an app without asar with an old remote release', function (test) {
-      const dest = 'test/fixtures/out/bar/'
-
-      before(() => spawn('./src/cli.js', [
-        '--src', 'test/fixtures/app-without-asar/',
-        '--dest', dest,
-        '--remoteReleases', 'http://localhost:3000/bar/'
-      ]))
-
-      after(() => fs.remove(dest))
-
-      it('generates a `RELEASES` manifest', () => access(dest + 'RELEASES'))
-
-      it('generates a delta `.nupkg` package', () => access(dest + 'bartest-0.0.1-delta.nupkg'))
-
-      it('generates a full `.nupkg` package', () => access(dest + 'bartest-0.0.1-full.nupkg'))
-
-      it('generates a `.exe` package', () => access(dest + 'bartest-0.0.1-setup.exe'))
-
-      if (process.platform === 'win32') {
-        it('generates a `.msi` package', () => access(dest + 'bartest-0.0.1-setup.msi'))
-      }
+    describeCLI('with an app without asar with an old remote release', false, {
+      remoteReleases: 'http://localhost:3000/bar/'
     })
   })
 })
