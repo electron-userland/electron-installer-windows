@@ -3,7 +3,7 @@
 const spawn = require('cross-spawn-promise')
 
 module.exports = function (cmd, args, logger) {
-  if (process.platform !== 'win32') {
+  if (process.platform !== 'win32' && cmd !== './src/cli.js') {
     args = [cmd].concat(args)
     cmd = 'mono'
   }
