@@ -11,6 +11,7 @@ const tmp = require('tmp-promise')
 
 const spawn = require('./spawn')
 
+debug.log = console.info.bind(console)
 const defaultLogger = debug('electron-installer-windows')
 
 const defaultRename = function (dest, src) {
