@@ -14,6 +14,7 @@ deploy:
     tags: true
 
 env:
+  - DEBUG="electron-installer-windows" NODE_VERSION="8"
   - DEBUG="electron-installer-windows" NODE_VERSION="6"
   - DEBUG="electron-installer-windows" NODE_VERSION="4"
 
