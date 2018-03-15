@@ -28,7 +28,9 @@ module.exports = function (desc, asar, testOptions) {
   }
 
   describe(desc, test => {
-    before(() => installer(options))
+    before((done) => {
+      installer(options).then(() => done())
+    })
 
     after(() => fs.remove(options.dest))
 

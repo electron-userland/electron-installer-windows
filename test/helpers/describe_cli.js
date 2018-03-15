@@ -40,8 +40,11 @@ module.exports = function (desc, asar, options) {
   if (options.remoteReleases) args.push('--remoteReleases', options.remoteReleases)
 
   describe(desc, test => {
-    before(() => spawn('./src/cli.js', args)
-      .then(logs => printLogs(logs)))
+    before((done) => {
+      spawn('./src/cli.js', args)
+        .then(logs => printLogs(logs))
+        .then(() => done())
+    })
 
     after(() => fs.remove(options.dest))
 
