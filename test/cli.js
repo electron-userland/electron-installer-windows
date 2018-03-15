@@ -31,7 +31,7 @@ describe('cli', function () {
 
     after(() => server.close())
 
-    describeCLI('with a signed app with asar', true, {
+    describeCLI('with an app with asar with the same remote release', true, {
       remoteReleases: 'http://localhost:3000/foo/'
     })
 
