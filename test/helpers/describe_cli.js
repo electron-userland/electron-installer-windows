@@ -8,6 +8,20 @@ const access = require('./access_helper').access
 const testAccess = require('./access_helper').testAccess
 const accessAll = require('./access_helper').accessAll
 
+function printLogs (logs) {
+  if (process.env.DEBUG === 'electron-installer-windows') {
+    logs = logs.split('\n')
+    return logs.forEach((line) => {
+      line = line.split(' ')
+      if (line[1] === 'electron-installer-windows') {
+        console.log('\t\x1b[34m%s\x1b[0m', line[1], line.splice(2).join(' '))
+      } else {
+        console.log('\t', line.join(' '))
+      }
+    })
+  }
+}
+
 module.exports = function (desc, asar, options) {
   let appName
   asar ? appName = 'footest' : appName = 'bartest'
@@ -26,7 +40,11 @@ module.exports = function (desc, asar, options) {
   if (options.remoteReleases) args.push('--remoteReleases', options.remoteReleases)
 
   describe(desc, test => {
-    before(() => spawn('./src/cli.js', args))
+    before((done) => {
+      spawn('./src/cli.js', args)
+        .then(logs => printLogs(logs))
+        .then(() => done())
+    })
 
     after(() => fs.remove(options.dest))
 
