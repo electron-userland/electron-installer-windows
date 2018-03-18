@@ -25,6 +25,9 @@
     "spec": "mocha",
     "test": "npm run lint && npm run spec"
   },
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "dependencies": {
     "asar": "^0.14.3",
     "debug": "^3.1.0",

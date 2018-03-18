@@ -9,11 +9,9 @@ This tool relies on the awesome [Squirrel.Windows](https://github.com/Squirrel/S
 
 ## Requirements
 
-I'd recommend building your packages on your target platform, but if you have to run this on Mac OS X or Linux, you will need to install `mono` and `wine` through [Homebrew](http://brew.sh/):
+This tool requires Node 6 or greater.
 
-```
-$ brew install mono wine
-```
+I'd recommend building your packages on your target platform, but if you have to run this on Mac OS X or Linux, you will need to install `mono` and `wine` through your package manager.
 
 You won't get an `.msi` installer though, only `.nupkg` and `.exe` installers. To get an `.msi` installer you'll need to run on Windows.
 
@@ -167,13 +165,22 @@ var options = {
 
 console.log('Creating package (this may take a while)')
 
+installer(options)
+  .then(() => console.log(`Successfully created package at ${options.dest}`))
+  .catch(err => {
+    console.error(err, err.stack)
+    process.exit(1)
+  })
+```
+Alternatively, it is possible to use the callback pattern:
+```js
 installer(options, function (err) {
   if (err) {
     console.error(err, err.stack)
     process.exit(1)
   }
 
-  console.log('Successfully created package at ' + options.dest)
+  console.log(`Successfully created package at ${options.dest}`)
 })
 ```
 
@@ -349,21 +356,14 @@ Boom, that's it. Now [get a standard code signing certificate](https://msdn.micr
 ## Maintenance
 
 ### Squirrel
-Current version: 1.4.4
+Current version: 1.7.9
 
-To update [Squirrel](https://github.com/Squirrel/Squirrel.Windows) to the latest version:
-
-```
-$ rm vendor/squirrel/*
-$ mono vendor/nuget/NuGet.exe install squirrel.windows -OutputDirectory vendor/tmp/
-$ cp -r vendor/tmp/squirrel.windows.1.4.4/tools/* vendor/squirrel/
-$ rm -rf vendor/tmp/
-```
+To update [Squirrel](https://github.com/Squirrel/Squirrel.Windows) to the latest version, head over to the [releases page](https://github.com/Squirrel/Squirrel.Windows/releases)
 
 ### NuGet
-Current version: 2.8.5
+Current version: 4.6.0.4971
 
-To update [NuGet](http://nuget.codeplex.com/) to the latest version, head over to the [releases page](http://nuget.codeplex.com/releases).
+To update [NuGet](https://github.com/nuget/home) to the latest version, head over to the [releases page](https://www.nuget.org/downloads).
 
 
 ## Meta
