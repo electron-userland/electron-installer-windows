@@ -1,7 +1,7 @@
 {
   "name": "electron-installer-windows",
   "description": "Create a Windows package for your Electron app.",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "license": "MIT",
   "author": {
     "name": "Daniel Perez Alvarez",
@@ -24,6 +24,9 @@
     "lint": "eslint .",
     "spec": "mocha",
     "test": "npm run lint && npm run spec"
+  },
+  "engines": {
+    "node": ">=6.0.0"
   },
   "dependencies": {
     "asar": "^0.14.3",
