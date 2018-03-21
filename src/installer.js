@@ -354,6 +354,7 @@ module.exports = function (data, callback) {
     .then(dir => movePackage(options, dir))
     .then(() => {
       data.logger(`Successfully created package at ${options.dest}`)
+      return options
     }).catch(err => {
       data.logger(errorMessage('creating package', err))
       throw err
