@@ -280,6 +280,18 @@ Default: `package.homepage || package.author.url`
 
 URL of the homepage for the package, used in the [`projectUrl` field of the `spec` file](https://docs.nuget.org/create/nuspec-reference).
 
+#### options.animation
+Type: `String`
+Default: [`resources/animation.gif`](https://github.com/unindented/electron-installer-windows/blob/master/resources/animation.gif)
+
+Path to an `.gif` file to be display while installation is processing, used by [`Squirrel` loading GIF](https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/loading-gif.md)
+
+#### options.icon
+Type: `String`
+Default: [`resources/icon.ico`](https://github.com/unindented/electron-installer-windows/blob/master/resources/icon.ico)
+
+Path to an `.ico` file used for the generated `.exe` installer.
+
 #### options.iconUrl
 Type: `String`
 Default: `undefined`
@@ -303,6 +315,12 @@ Type: `Array[String]`
 Default: `[]`
 
 List of tags and keywords that describe the package, used in the [`tags` field of the `spec` file](https://docs.nuget.org/create/nuspec-reference).
+
+#### options.noMsi
+Type: `Boolean`
+Default: `false`
+
+Whether a `.msi` installer should be created or not.
 
 #### options.certificateFile
 Type: `String`
