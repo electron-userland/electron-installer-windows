@@ -65,6 +65,11 @@ function getDefaults (data) {
         : pkg.author.name
       )]
 
+      const urlRegex = /.*\(([^)]+)\).*/
+      const authorURL = typeof pkg.author === 'string' && pkg.author.search(urlRegex) >= 0
+        ? pkg.author.replace(urlRegex, '$1')
+        : pkg.author.url
+
       return {
         name: pkg.name || 'electron',
         productName: pkg.productName || pkg.name,
@@ -76,10 +81,7 @@ function getDefaults (data) {
         authors: authors,
         owners: authors,
 
-        homepage: pkg.homepage || (pkg.author && (typeof pkg.author === 'string'
-          ? pkg.author.replace(/.*\(([^)]+)\).*/, '$1')
-          : pkg.author.url
-        )),
+        homepage: pkg.homepage || authorURL,
 
         exe: pkg.name ? (pkg.name + '.exe') : 'electron.exe',
         icon: path.resolve(__dirname, '../resources/icon.ico'),
@@ -354,6 +356,7 @@ module.exports = function (data, callback) {
     .then(dir => movePackage(options, dir))
     .then(() => {
       data.logger(`Successfully created package at ${options.dest}`)
+      return options
     }).catch(err => {
       data.logger(errorMessage('creating package', err))
       throw err
