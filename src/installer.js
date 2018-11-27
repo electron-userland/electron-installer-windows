@@ -209,7 +209,7 @@ function createPackage (options, dir) {
   const nugetDir = path.join(dir, 'nuget')
   const specFile = path.join(nugetDir, options.name + '.nuspec')
 
-  const cmd = path.resolve(__dirname, '../vendor/nuget/NuGet.exe')
+  const cmd = path.resolve(__dirname, '../vendor/nuget/nuget.exe')
   const args = [
     'pack',
     specFile,
