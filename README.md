@@ -1,6 +1,6 @@
 ![Electron Installer for Windows](resources/logo.png)
 
-# electron-installer-windows [![Version](https://img.shields.io/npm/v/electron-installer-windows.svg)](https://www.npmjs.com/package/electron-installer-windows) [![Build Status](https://img.shields.io/travis/unindented/electron-installer-windows.svg)](http://travis-ci.org/unindented/electron-installer-windows) [![Build Status](https://img.shields.io/appveyor/ci/unindented/electron-installer-windows.svg)](https://ci.appveyor.com/project/unindented/electron-installer-windows) [![Dependency Status](https://img.shields.io/gemnasium/unindented/electron-installer-windows.svg)](https://gemnasium.com/unindented/electron-installer-windows)
+# electron-installer-windows [![Version](https://img.shields.io/npm/v/electron-installer-windows.svg)](https://www.npmjs.com/package/electron-installer-windows) [![Build Status](https://img.shields.io/travis/electron-userland/electron-installer-windows.svg)](http://travis-ci.org/electron-userland/electron-installer-windows) [![Build Status](https://img.shields.io/appveyor/ci/electron-userland/electron-installer-windows.svg)](https://ci.appveyor.com/project/electron-userland/electron-installer-windows)
 
 > Create a Windows package for your Electron app.
 
@@ -282,13 +282,13 @@ URL of the homepage for the package, used in the [`projectUrl` field of the `spe
 
 #### options.animation
 Type: `String`
-Default: [`resources/animation.gif`](https://github.com/unindented/electron-installer-windows/blob/master/resources/animation.gif)
+Default: [`resources/animation.gif`](https://github.com/electron-userland/electron-installer-windows/blob/master/resources/animation.gif)
 
 Path to an `.gif` file to be display while installation is processing, used by [`Squirrel` loading GIF](https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/loading-gif.md)
 
 #### options.icon
 Type: `String`
-Default: [`resources/icon.ico`](https://github.com/unindented/electron-installer-windows/blob/master/resources/icon.ico)
+Default: [`resources/icon.ico`](https://github.com/electron-userland/electron-installer-windows/blob/master/resources/icon.ico)
 
 Path to an `.ico` file used for the generated `.exe` installer.
 
@@ -386,8 +386,8 @@ To update [NuGet](https://github.com/nuget/home) to the latest version, head ove
 
 ## Meta
 
-* Code: `git clone git://github.com/unindented/electron-installer-windows.git`
-* Home: <https://github.com/unindented/electron-installer-windows/>
+* Code: `git clone git://github.com/electron-userland/electron-installer-windows.git`
+* Home: <https://github.com/electron-userland/electron-installer-windows/>
 
 
 ## Contributors

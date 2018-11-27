@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/unindented/electron-installer-windows.git"
+    "url": "git://github.com/electron-userland/electron-installer-windows.git"
   },
   "keywords": [
     "electron",
