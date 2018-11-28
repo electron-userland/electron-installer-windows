@@ -8,6 +8,10 @@ environment:
 
   matrix:
     - platform: x86
+      nodejs_version: '10'
+    - platform: x64
+      nodejs_version: '10'
+    - platform: x86
       nodejs_version: '8'
     - platform: x64
       nodejs_version: '8'
