@@ -164,7 +164,7 @@ function createDir (options) {
   options.logger('Creating temporary directory')
   let tempDir
 
-  return tmp.dir({prefix: 'electron-', unsafeCleanup: true})
+  return tmp.dir({ prefix: 'electron-', unsafeCleanup: true })
     .then(dir => {
       tempDir = path.join(dir.path, options.name + '_' + options.version)
       return fs.ensureDir(tempDir)
@@ -244,7 +244,7 @@ function findPackage (options, dir) {
  */
 function syncRemoteReleases (options, dir, pkg) {
   if (!options.remoteReleases) {
-    return {dir: dir, pkg: pkg}
+    return { dir: dir, pkg: pkg }
   }
 
   options.logger('Syncing package at ' + dir)
@@ -328,7 +328,7 @@ function movePackage (options, dir) {
       let dest = options.rename(options.dest, path.basename(file))
       dest = _.template(dest)(options)
       options.logger('Moving file ' + file + ' to ' + dest)
-      return fs.move(file, dest, {clobber: true})
+      return fs.move(file, dest, { clobber: true })
     })))
     .catch(wrapError('moving package files'))
 }
