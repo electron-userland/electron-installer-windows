@@ -1,7 +1,7 @@
 'use strict'
 
 const describeCLI = require('./helpers/describe_cli')
-const serve = require('./helpers/serve')
+const Server = require('./helpers/server')
 
 describe('cli', function () {
   this.timeout(20000)
@@ -24,12 +24,11 @@ describe('cli', function () {
   }
 
   describe('with a releases server', function (test) {
-    let server
+    const server = new Server('test/fixtures/releases/', 3000)
 
-    before(() => serve('test/fixtures/releases/', 3000)
-      .then(ser => (server = ser)))
+    before(() => server.runServer())
 
-    after(() => server.close())
+    after(() => server.closeServer())
 
     describeCLI('with an app with asar with the same remote release', true, {
       remoteReleases: 'http://localhost:3000/foo/'
