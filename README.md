@@ -119,7 +119,7 @@ $ npm install --save-dev electron-installer-windows
 
 Edit the `scripts` section of your `package.json`:
 
-```js
+```javascript
 {
   "name": "app",
   "description": "An awesome app!",
@@ -155,10 +155,10 @@ $ npm install --save-dev electron-installer-windows
 
 And write something like this:
 
-```js
-var installer = require('electron-installer-windows')
+```javascript
+const installer = require('electron-installer-windows')
 
-var options = {
+const options = {
   src: 'dist/app-win32-x64/',
   dest: 'dist/installers/'
 }
@@ -173,8 +173,8 @@ installer(options)
   })
 ```
 Alternatively, it is possible to use the callback pattern:
-```js
-installer(options, function (err) {
+```javascript
+installer(options, (err) => {
   if (err) {
     console.error(err, err.stack)
     process.exit(1)
@@ -190,7 +190,7 @@ You'll end up with the package at `dist/installers/app-0.0.1-setup.exe`.
 
 Even though you can pass most of these options through the command-line interface, it may be easier to create a configuration file:
 
-```js
+```javascript
 {
   "dest": "dist/installers/",
   "icon": "resources/Icon.ico",

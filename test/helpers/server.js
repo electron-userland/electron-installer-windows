@@ -10,7 +10,7 @@ module.exports = class Server {
 
     this.port = port
     this.server = http.createServer((req, res) => {
-      var handler = finalHandler(req, res)
+      const handler = finalHandler(req, res)
       serve(req, res, handler)
     })
   }

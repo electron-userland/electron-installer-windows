@@ -14,10 +14,10 @@ const spawn = require('./spawn')
 debug.log = console.info.bind(console)
 const defaultLogger = debug('electron-installer-windows')
 
-const defaultRename = function (dest, src) {
+function defaultRename (dest, src) {
   const ext = path.extname(src)
   if (ext === '.exe' || ext === '.msi') {
-    src = '<%= name %>-<%= version %>-setup' + ext
+    src = `<%= name %>-<%= version %>-setup${ext}`
   }
   return path.join(dest, src)
 }
@@ -43,10 +43,10 @@ function readMeta (options) {
   return fs.pathExists(appAsarPath)
     .then(assarExists => {
       if (assarExists) {
-        options.logger('Reading package metadata from ' + appAsarPath)
+        options.logger(`Reading package metadata from ${appAsarPath}`)
         return JSON.parse(asar.extractFile(appAsarPath, 'package.json'))
       } else {
-        options.logger('Reading package metadata from ' + appPackageJSONPath)
+        options.logger(`Reading package metadata from ${appPackageJSONPath}`)
         return fs.readJsonSync(appPackageJSONPath)
       }
     }).catch(wrapError('reading package metadata'))
@@ -77,13 +77,13 @@ function getDefaults (data) {
         productDescription: pkg.productDescription || pkg.description,
         version: pkg.version || '0.0.0',
 
-        copyright: pkg.copyright || (authors && 'Copyright \u00A9 ' + new Date().getFullYear() + ' ' + authors),
+        copyright: pkg.copyright || (authors && `Copyright \u00A9 ${new Date().getFullYear()} ${authors}`),
         authors: authors,
         owners: authors,
 
         homepage: pkg.homepage || authorURL,
 
-        exe: pkg.name ? (pkg.name + '.exe') : 'electron.exe',
+        exe: pkg.name ? `${pkg.name}.exe` : 'electron.exe',
         icon: path.resolve(__dirname, '../resources/icon.ico'),
         animation: path.resolve(__dirname, '../resources/animation.gif'),
 
@@ -118,12 +118,12 @@ function getOptions (data, defaults) {
  * Fill in a template with the hash of options.
  */
 function generateTemplate (options, file) {
-  options.logger('Generating template from ' + file)
+  options.logger(`Generating template from ${file}`)
 
   return fs.readFile(file)
     .then(template => {
       const result = _.template(template)(options)
-      options.logger('Generated template from ' + file + '\n' + result)
+      options.logger(`Generated template from ${file}\n${result}`)
       return result
     })
 }
@@ -135,8 +135,8 @@ function generateTemplate (options, file) {
  */
 function createSpec (options, dir) {
   const specSrc = path.resolve(__dirname, '../resources/spec.ejs')
-  const specDest = path.join(dir, 'nuget', options.name + '.nuspec')
-  options.logger('Creating spec file at ' + specDest)
+  const specDest = path.join(dir, 'nuget', `${options.name}.nuspec`)
+  options.logger(`Creating spec file at ${specDest}`)
 
   return generateTemplate(options, specSrc)
     .then(data => fs.outputFile(specDest, data))
@@ -150,7 +150,7 @@ function createApplication (options, dir) {
   const applicationDir = path.join(dir, options.name)
   const updateSrc = path.resolve(__dirname, '../vendor/squirrel/Squirrel.exe')
   const updateDest = path.join(applicationDir, 'Update.exe')
-  options.logger('Copying application to ' + applicationDir)
+  options.logger(`Copying application to ${applicationDir}`)
 
   return fs.copy(options.src, applicationDir)
     .then(() => fs.copy(updateSrc, updateDest))
@@ -166,7 +166,7 @@ function createDir (options) {
 
   return tmp.dir({ prefix: 'electron-', unsafeCleanup: true })
     .then(dir => {
-      tempDir = path.join(dir.path, options.name + '_' + options.version)
+      tempDir = path.join(dir.path, `${options.name}_${options.version}`)
       return fs.ensureDir(tempDir)
     })
     .then(() => tempDir)
@@ -177,7 +177,7 @@ function createDir (options) {
  * Create subdirectories where intermediate files will live.
  */
 function createSubdirs (options, dir) {
-  options.logger('Creating subdirectories under ' + dir)
+  options.logger(`Creating subdirectories under ${dir}`)
 
   return fs.ensureDir(path.join(dir, 'nuget'))
     .then(() => fs.ensureDir(path.join(dir, 'squirrel')))
@@ -203,11 +203,11 @@ function createContents (options, dir) {
  * Package everything using `nuget`.
  */
 function createPackage (options, dir) {
-  options.logger('Creating package at ' + dir)
+  options.logger(`Creating package at ${dir}`)
 
   const applicationDir = path.join(dir, options.name)
   const nugetDir = path.join(dir, 'nuget')
-  const specFile = path.join(nugetDir, options.name + '.nuspec')
+  const specFile = path.join(nugetDir, `${options.name}.nuspec`)
 
   const cmd = path.resolve(__dirname, '../vendor/nuget/nuget.exe')
   const args = [
@@ -230,7 +230,7 @@ function createPackage (options, dir) {
  */
 function findPackage (options, dir) {
   const packagePattern = path.join(dir, 'nuget', '*.nupkg')
-  options.logger('Finding package with pattern ' + packagePattern)
+  options.logger(`Finding package with pattern ${packagePattern}`)
 
   return glob(packagePattern)
     .then(files => ({
@@ -247,7 +247,7 @@ function syncRemoteReleases (options, dir, pkg) {
     return { dir: dir, pkg: pkg }
   }
 
-  options.logger('Syncing package at ' + dir)
+  options.logger(`Syncing package at ${dir}`)
 
   const url = options.remoteReleases
   const squirrelDir = path.join(dir, 'squirrel')
@@ -270,8 +270,8 @@ function syncRemoteReleases (options, dir, pkg) {
 /**
  * Releasify everything using `squirrel`.
  */
-const releasifyPackage = function (options, dir, pkg) {
-  options.logger('Releasifying package at ' + dir)
+function releasifyPackage (options, dir, pkg) {
+  options.logger(`Releasifying package at ${dir}`)
 
   const squirrelDir = path.join(dir, 'squirrel')
 
@@ -301,8 +301,8 @@ const releasifyPackage = function (options, dir, pkg) {
     args.push('--signWithParams')
     args.push([
       '/a',
-      '/f "' + path.resolve(options.certificateFile) + '"',
-      '/p "' + options.certificatePassword + '"'
+      `/f "${path.resolve(options.certificateFile)}"`,
+      `/p "${options.certificatePassword}"`
     ].join(' '))
   }
 
@@ -327,7 +327,7 @@ function movePackage (options, dir) {
     .then(files => Promise.all(files.map(file => {
       let dest = options.rename(options.dest, path.basename(file))
       dest = _.template(dest)(options)
-      options.logger('Moving file ' + file + ' to ' + dest)
+      options.logger(`Moving file ${file} to ${dest}`)
       return fs.move(file, dest, { clobber: true })
     })))
     .catch(wrapError('moving package files'))
@@ -345,7 +345,7 @@ module.exports = function (data, callback) {
     .then(defaults => getOptions(data, defaults))
     .then(generatedOptions => {
       options = generatedOptions
-      return data.logger('Creating package with options\n' + JSON.stringify(options, null, 2))
+      return data.logger(`Creating package with options\n${JSON.stringify(options, null, 2)}`)
     }).then(() => createDir(options))
     .then(dir => createSubdirs(options, dir))
     .then(dir => createContents(options, dir))
