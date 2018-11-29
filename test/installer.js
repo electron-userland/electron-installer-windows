@@ -1,7 +1,7 @@
 'use strict'
 
 const describeInstaller = require('./helpers/describe_installer')
-const serve = require('./helpers/serve')
+const Server = require('./helpers/server')
 
 describe('module', function () {
   this.timeout(20000)
@@ -38,12 +38,11 @@ describe('module', function () {
   }
 
   describe('with a releases server', function (test) {
-    let server
+    const server = new Server('test/fixtures/releases/', 3000)
 
-    before(() => serve('test/fixtures/releases/', 3000)
-      .then(ser => (server = ser)))
+    before(() => server.runServer())
 
-    after(() => server.close())
+    after(() => server.closeServer())
 
     describeInstaller('with an app with asar with the same remote release', true, {
       productDescription: 'Just a test.',
