@@ -10,7 +10,7 @@ const rootFolder = path.resolve(appFolder, '..')
 const updateDotExe = path.join(rootFolder, 'Update.exe')
 const exeName = path.basename(process.execPath)
 
-const spawn = function (command, args, callback) {
+function spawn (command, args, callback) {
   let spawnedProcess = null
   let error = null
   let stdout = ''
@@ -18,43 +18,43 @@ const spawn = function (command, args, callback) {
   try {
     spawnedProcess = child.spawn(command, args)
   } catch (processError) {
-    process.nextTick(function () {
+    process.nextTick(() => {
       callback(processError, stdout)
     })
     return
   }
 
-  spawnedProcess.stdout.on('data', function (data) {
+  spawnedProcess.stdout.on('data', (data) => {
     stdout += data
   })
 
-  spawnedProcess.on('error', function (processError) {
+  spawnedProcess.on('error', (processError) => {
     error = error || processError
   })
 
-  spawnedProcess.on('close', function (code, signal) {
+  spawnedProcess.on('close', (code, signal) => {
     if (code !== 0) {
-      error = error || new Error('Command failed: ' + (signal || code))
+      error = error || new Error(`Command failed: ${(signal || code)}`)
     }
 
     callback(error, stdout)
   })
 }
 
-const spawnUpdate = function (args, callback) {
+function spawnUpdate (args, callback) {
   spawn(updateDotExe, args, callback)
 }
 
-const createShortcuts = function (callback) {
+function createShortcuts (callback) {
   spawnUpdate(['--createShortcut', exeName], callback)
 }
 
-const updateShortcuts = function (callback) {
+function updateShortcuts (callback) {
   const homeDirectory = fs.getHomeDirectory()
   if (homeDirectory) {
     const desktopShortcutPath = path.join(homeDirectory, 'Desktop', `${pkg.name}.lnk`)
-    fs.access(desktopShortcutPath, function (desktopShortcutExists) {
-      createShortcuts(function () {
+    fs.access(desktopShortcutPath, (desktopShortcutExists) => {
+      createShortcuts(() => {
         if (desktopShortcutExists) {
           callback()
         } else {
@@ -67,24 +67,24 @@ const updateShortcuts = function (callback) {
   }
 }
 
-const removeShortcuts = function (callback) {
+function removeShortcuts (callback) {
   spawnUpdate(['--removeShortcut', exeName], callback)
 }
 
-const handleCommand = function (app, cmd) {
+const handleCommand = (app, cmd) => {
   switch (cmd) {
     case 'install':
-      createShortcuts(function () {
+      createShortcuts(() => {
         app.quit()
       })
       return true
     case 'updated':
-      updateShortcuts(function () {
+      updateShortcuts(() => {
         app.quit()
       })
       return true
     case 'uninstall':
-      removeShortcuts(function () {
+      removeShortcuts(() => {
         app.quit()
       })
       return true

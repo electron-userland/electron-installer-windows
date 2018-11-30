@@ -2,7 +2,7 @@
 
 const yargs = require('yargs')
 
-const extractSquirrelCommand = function (options) {
+function extractSquirrelCommand (options) {
   if (options['squirrel-install']) {
     return 'install'
   }
@@ -17,7 +17,7 @@ const extractSquirrelCommand = function (options) {
   }
 }
 
-const parseArguments = function (app, args) {
+function parseArguments (app, args) {
   const options = yargs(args)
     .option('squirrel-install', {
       desribe: 'Used by Squirrel to install the app'

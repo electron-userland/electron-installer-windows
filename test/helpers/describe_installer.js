@@ -22,7 +22,7 @@ module.exports = function (desc, asar, testOptions) {
   options.rename = (dest, src) => {
     const ext = path.extname(src)
     if (ext === '.exe' || ext === '.msi') {
-      src = '<%= name %>-<%= version %>-installer' + ext
+      src = `<%= name %>-<%= version %>-installer${ext}`
     }
     return path.join(dest, src)
   }

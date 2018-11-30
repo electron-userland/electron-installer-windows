@@ -66,7 +66,7 @@
 
   const createWindow = () => {
     const iconPath = path.resolve(__dirname, '../../resources/Icon.png')
-    const winUrl = 'file://' + path.resolve(__dirname, '../renderer/index.html')
+    const winUrl = `file://${path.resolve(__dirname, '../renderer/index.html')}`
 
     win = new BrowserWindow({
       width: 800,
