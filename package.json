@@ -29,8 +29,6 @@
     "node": ">=6.0.0"
   },
   "dependencies": {
-    "asar": "^0.14.5",
-    "cross-spawn-promise": "^0.10.1",
     "debug": "^4.1.0",
     "electron-installer-common": "^0.4.0",
     "fs-extra": "^7.0.1",
@@ -38,7 +36,6 @@
     "glob-promise": "^3.4.0",
     "lodash": "^4.17.11",
     "nodeify": "^1.0.1",
-    "tmp-promise": "^1.0.5",
     "yargs": "^12.0.5"
   },
   "devDependencies": {
@@ -52,6 +49,7 @@
     "finalhandler": "^1.1.1",
     "mocha": "^5.2.0",
     "promise-retry": "^1.1.1",
-    "serve-static": "^1.13.2"
+    "serve-static": "^1.13.2",
+    "tmp-promise": "^1.0.5"
   }
 }
