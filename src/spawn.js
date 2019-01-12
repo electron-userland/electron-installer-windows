@@ -20,7 +20,6 @@ function updateExecutableMissingException (err, updateError) {
     }
 
     err.message = `Your system is missing the ${pkg} package. Try, e.g. '${installer} install ${pkg}'`
-    }
   }
 }
 
