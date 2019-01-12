@@ -30,12 +30,13 @@
   },
   "dependencies": {
     "debug": "^4.1.0",
-    "electron-installer-common": "^0.4.0",
+    "electron-installer-common": "electron-userland/electron-installer-common#installer-class",
     "fs-extra": "^7.0.1",
     "glob": "^7.1.3",
     "glob-promise": "^3.4.0",
     "lodash": "^4.17.11",
     "nodeify": "^1.0.1",
+    "parse-author": "^2.0.0",
     "which": "^1.3.1",
     "yargs": "^12.0.5"
   },
