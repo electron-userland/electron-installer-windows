@@ -1,19 +1,32 @@
 'use strict'
 
-const spawn = require('cross-spawn-promise')
+const { spawn } = require('electron-installer-common')
+const which = require('which')
+
+function updateExecutableMissingException (err, updateError) {
+  if (updateError && err.code === 'ENOENT' && err.syscall === 'spawn mono') {
+    let installer
+    let pkg
+
+    if (process.platform === 'darwin') {
+      installer = 'brew'
+      pkg = 'mono'
+    } else if (which.sync('dnf', { nothrow: true })) {
+      installer = 'dnf'
+      pkg = 'mono-core'
+    } else { // assume apt-based Linux distro
+      installer = 'apt'
+      pkg = 'mono-runtime'
+    }
+
+    err.message = `Your system is missing the ${pkg} package. Try, e.g. '${installer} install ${pkg}'`
+  }
+}
 
 module.exports = function (cmd, args, logger) {
-  if (process.platform !== 'win32' && cmd !== './src/cli.js') {
+  if (process.platform !== 'win32') {
     args.unshift(cmd)
     cmd = 'mono'
   }
-
-  if (logger) logger(`Executing command: ${cmd} ${args.join(' ')}`)
-
-  return spawn(cmd, args)
-    .then(stdout => stdout.toString())
-    .catch(err => {
-      const stderr = err.stderr ? err.stderr.toString() : ''
-      throw new Error(`Error executing command (${err.message || err}):\n${cmd} ${args.join(' ')}\n${stderr}`)
-    })
+  return spawn(cmd, args, logger, updateExecutableMissingException)
 }

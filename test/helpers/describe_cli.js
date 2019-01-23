@@ -2,8 +2,8 @@
 
 const chai = require('chai')
 const fs = require('fs-extra')
+const { spawn } = require('electron-installer-common')
 const tmp = require('tmp-promise')
-const spawn = require('../../src/spawn')
 const access = require('./access_helper').access
 const testAccess = require('./access_helper').testAccess
 const accessAll = require('./access_helper').accessAll
@@ -41,7 +41,7 @@ module.exports = function (desc, asar, options) {
 
   describe(desc, test => {
     before((done) => {
-      spawn('./src/cli.js', args)
+      spawn('./src/cli.js', args, null, null)
         .then(logs => printLogs(logs))
         .then(() => done())
     })

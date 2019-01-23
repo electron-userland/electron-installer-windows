@@ -1,13 +1,12 @@
 'use strict'
 
 const _ = require('lodash')
-const asar = require('asar')
+const common = require('electron-installer-common')
 const debug = require('debug')
 const fs = require('fs-extra')
 const glob = require('glob-promise')
 const nodeify = require('nodeify')
 const path = require('path')
-const tmp = require('tmp-promise')
 
 const spawn = require('./spawn')
 
@@ -22,42 +21,12 @@ function defaultRename (dest, src) {
   return path.join(dest, src)
 }
 
-function errorMessage (message, err) {
-  return `Error ${message}: ${err.message || err}`
-}
-
-function wrapError (message) {
-  return err => {
-    throw new Error(errorMessage(message, err))
-  }
-}
-
-/**
- * Read `package.json` either from `resources.app.asar` (if the app is packaged)
- * or from `resources/app/package.json` (if it is not).
- */
-function readMeta (options) {
-  const appAsarPath = path.join(options.src, 'resources/app.asar')
-  const appPackageJSONPath = path.join(options.src, 'resources/app/package.json')
-
-  return fs.pathExists(appAsarPath)
-    .then(assarExists => {
-      if (assarExists) {
-        options.logger(`Reading package metadata from ${appAsarPath}`)
-        return JSON.parse(asar.extractFile(appAsarPath, 'package.json'))
-      } else {
-        options.logger(`Reading package metadata from ${appPackageJSONPath}`)
-        return fs.readJsonSync(appPackageJSONPath)
-      }
-    }).catch(wrapError('reading package metadata'))
-}
-
 /**
  * Get the hash of default options for the installer. Some come from the info
  * read from `package.json`, and some are hardcoded.
  */
 function getDefaults (data) {
-  return readMeta(data)
+  return common.readMeta(data)
     .then(pkg => {
       pkg = pkg || {}
       const authors = pkg.author && [(typeof pkg.author === 'string'
@@ -65,23 +34,12 @@ function getDefaults (data) {
         : pkg.author.name
       )]
 
-      const urlRegex = /.*\(([^)]+)\).*/
-      const authorURL = typeof pkg.author === 'string' && pkg.author.search(urlRegex) >= 0
-        ? pkg.author.replace(urlRegex, '$1')
-        : pkg.author.url
-
-      return {
-        name: pkg.name || 'electron',
-        productName: pkg.productName || pkg.name,
-        description: pkg.description,
-        productDescription: pkg.productDescription || pkg.description,
+      return Object.assign(common.getDefaultsFromPackageJSON(pkg), {
         version: pkg.version || '0.0.0',
 
         copyright: pkg.copyright || (authors && `Copyright \u00A9 ${new Date().getFullYear()} ${authors}`),
         authors: authors,
         owners: authors,
-
-        homepage: pkg.homepage || authorURL,
 
         exe: pkg.name ? `${pkg.name}.exe` : 'electron.exe',
         icon: path.resolve(__dirname, '../resources/icon.ico'),
@@ -100,7 +58,7 @@ function getDefaults (data) {
         remoteReleases: undefined,
 
         noMsi: false
-      }
+      })
     })
 }
 
@@ -115,20 +73,6 @@ function getOptions (data, defaults) {
 }
 
 /**
- * Fill in a template with the hash of options.
- */
-function generateTemplate (options, file) {
-  options.logger(`Generating template from ${file}`)
-
-  return fs.readFile(file)
-    .then(template => {
-      const result = _.template(template)(options)
-      options.logger(`Generated template from ${file}\n${result}`)
-      return result
-    })
-}
-
-/**
  * Create the nuspec file for the package.
  *
  * See: https://docs.nuget.org/create/nuspec-reference
@@ -138,9 +82,9 @@ function createSpec (options, dir) {
   const specDest = path.join(dir, 'nuget', `${options.name}.nuspec`)
   options.logger(`Creating spec file at ${specDest}`)
 
-  return generateTemplate(options, specSrc)
+  return common.generateTemplate(options, specSrc)
     .then(data => fs.outputFile(specDest, data))
-    .catch(wrapError('creating spec file'))
+    .catch(common.wrapError('creating spec file'))
 }
 
 /**
@@ -154,23 +98,7 @@ function createApplication (options, dir) {
 
   return fs.copy(options.src, applicationDir)
     .then(() => fs.copy(updateSrc, updateDest))
-    .catch(wrapError('copying application directory'))
-}
-
-/**
- * Create temporary directory where the contents of the package will live.
- */
-function createDir (options) {
-  options.logger('Creating temporary directory')
-  let tempDir
-
-  return tmp.dir({ prefix: 'electron-', unsafeCleanup: true })
-    .then(dir => {
-      tempDir = path.join(dir.path, `${options.name}_${options.version}`)
-      return fs.ensureDir(tempDir)
-    })
-    .then(() => tempDir)
-    .catch(wrapError('creating temporary directory'))
+    .catch(common.wrapError('copying application directory'))
 }
 
 /**
@@ -182,21 +110,17 @@ function createSubdirs (options, dir) {
   return fs.ensureDir(path.join(dir, 'nuget'))
     .then(() => fs.ensureDir(path.join(dir, 'squirrel')))
     .then(() => dir)
-    .catch(wrapError('creating temporary subdirectories'))
+    .catch(common.wrapError('creating temporary subdirectories'))
 }
 
 /**
  * Create the contents of the package.
  */
 function createContents (options, dir) {
-  options.logger('Creating contents of package')
-
-  return Promise.all([
+  return common.createContents(options, dir, [
     createSpec,
     createApplication
-  ].map(func => func(options, dir)))
-    .then(() => dir)
-    .catch(wrapError('creating contents of package'))
+  ])
 }
 
 /**
@@ -222,7 +146,7 @@ function createPackage (options, dir) {
 
   return spawn(cmd, args, options.logger)
     .then(() => dir)
-    .catch(wrapError('creating package with NuGet'))
+    .catch(common.wrapError('creating package with NuGet'))
 }
 
 /**
@@ -236,7 +160,7 @@ function findPackage (options, dir) {
     .then(files => ({
       dir: dir,
       pkg: files[0]
-    })).catch(wrapError('finding package with pattern'))
+    })).catch(common.wrapError('finding package with pattern'))
 }
 
 /**
@@ -264,7 +188,7 @@ function syncRemoteReleases (options, dir, pkg) {
     .then(() => ({
       dir: dir,
       pkg: pkg
-    })).catch(wrapError('syncing remote releases'))
+    })).catch(common.wrapError('syncing remote releases'))
 }
 
 /**
@@ -312,25 +236,16 @@ function releasifyPackage (options, dir, pkg) {
 
   return spawn(cmd, args, options.logger)
     .then(() => dir)
-    .catch(wrapError('releasifying package'))
+    .catch(common.wrapError('releasifying package'))
 }
 
 /**
  * Move the package files to the specified destination.
  */
 function movePackage (options, dir) {
-  options.logger('Moving package to destination')
-
   const packagePattern = path.join(dir, 'squirrel', '*')
 
-  return glob(packagePattern)
-    .then(files => Promise.all(files.map(file => {
-      let dest = options.rename(options.dest, path.basename(file))
-      dest = _.template(dest)(options)
-      options.logger(`Moving file ${file} to ${dest}`)
-      return fs.move(file, dest, { clobber: true })
-    })))
-    .catch(wrapError('moving package files'))
+  common.movePackage(packagePattern, options, dir)
 }
 
 /* ************************************************************************** */
@@ -346,7 +261,7 @@ module.exports = function (data, callback) {
     .then(generatedOptions => {
       options = generatedOptions
       return data.logger(`Creating package with options\n${JSON.stringify(options, null, 2)}`)
-    }).then(() => createDir(options))
+    }).then(() => common.createDir(options))
     .then(dir => createSubdirs(options, dir))
     .then(dir => createContents(options, dir))
     .then(dir => createPackage(options, dir))
@@ -358,7 +273,7 @@ module.exports = function (data, callback) {
       data.logger(`Successfully created package at ${options.dest}`)
       return options
     }).catch(err => {
-      data.logger(errorMessage('creating package', err))
+      data.logger(common.errorMessage('creating package', err))
       throw err
     })
 

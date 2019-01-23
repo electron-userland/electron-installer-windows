@@ -4,3 +4,4 @@
 /test/fixtures/out/
 /vendor/squirrel/*.log
 yarn.lock
+package-lock.json
