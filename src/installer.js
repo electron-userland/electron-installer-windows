@@ -115,7 +115,7 @@ class SquirrelInstaller extends common.ElectronInstaller {
    * read from `package.json`, and some are hardcoded.
    */
   generateDefaults () {
-    return common.readMeta(this.userSupplied)
+    return common.readMetadata(this.userSupplied)
       .then(pkg => {
         pkg = pkg || {}
         const authors = [parseAuthor(pkg.author).name]
