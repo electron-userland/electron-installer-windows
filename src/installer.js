@@ -1,11 +1,11 @@
 'use strict'
 
-const _ = require('lodash')
 const common = require('electron-installer-common')
 const debug = require('debug')
 const fs = require('fs-extra')
 const glob = require('glob-promise')
 const nodeify = require('nodeify')
+const parseAuthor = require('parse-author')
 const path = require('path')
 
 const spawn = require('./spawn')
@@ -21,257 +21,225 @@ function defaultRename (dest, src) {
   return path.join(dest, src)
 }
 
-/**
- * Get the hash of default options for the installer. Some come from the info
- * read from `package.json`, and some are hardcoded.
- */
-function getDefaults (data) {
-  return common.readMeta(data)
-    .then(pkg => {
-      pkg = pkg || {}
-      const authors = pkg.author && [(typeof pkg.author === 'string'
-        ? pkg.author.replace(/\s+(<[^>]+>|\([^)]+\))/g, '')
-        : pkg.author.name
-      )]
+class SquirrelInstaller extends common.ElectronInstaller {
+  get contentFunctions () {
+    return [
+      'copyApplication',
+      'createSpec'
+    ]
+  }
 
-      return Object.assign(common.getDefaultsFromPackageJSON(pkg), {
-        version: pkg.version || '0.0.0',
+  get packagePattern () {
+    return path.join(this.squirrelDir, '*')
+  }
 
-        copyright: pkg.copyright || (authors && `Copyright \u00A9 ${new Date().getFullYear()} ${authors}`),
-        authors: authors,
-        owners: authors,
+  get specPath () {
+    return path.join(this.stagingDir, 'nuget', `${this.options.name}.nuspec`)
+  }
 
-        exe: pkg.name ? `${pkg.name}.exe` : 'electron.exe',
-        icon: path.resolve(__dirname, '../resources/icon.ico'),
-        animation: path.resolve(__dirname, '../resources/animation.gif'),
+  get squirrelDir () {
+    return path.join(this.stagingDir, 'squirrel')
+  }
 
-        iconUrl: undefined,
-        licenseUrl: undefined,
-        requireLicenseAcceptance: false,
+  get stagingAppDir () {
+    return path.join(this.stagingDir, this.appIdentifier)
+  }
 
-        tags: [],
+  get vendorDir () {
+    return path.resolve(__dirname, '../vendor')
+  }
 
-        certificateFile: undefined,
-        certificatePassword: undefined,
-        signWithParams: undefined,
+  /**
+   * Copy the application into the package.
+   */
+  copyApplication () {
+    return super.copyApplication()
+      .then(() => this.copySquirrelUpdater())
+  }
 
-        remoteReleases: undefined,
+  copySquirrelUpdater () {
+    const updateSrc = path.join(this.vendorDir, 'squirrel', 'Squirrel.exe')
+    const updateDest = path.join(this.stagingAppDir, 'Update.exe')
+    return fs.copy(updateSrc, updateDest)
+      .catch(common.wrapError('copying Squirrel updater'))
+  }
 
-        noMsi: false
+  /**
+   * Package everything using `nuget`.
+   */
+  createPackage () {
+    this.options.logger(`Creating package at ${this.stagingDir}`)
+
+    const cmd = path.join(this.vendorDir, 'nuget', 'nuget.exe')
+    const args = [
+      'pack',
+      this.specPath,
+      '-BasePath',
+      this.stagingAppDir,
+      '-OutputDirectory',
+      path.join(this.stagingDir, 'nuget'),
+      '-NoDefaultExcludes'
+    ]
+
+    return spawn(cmd, args, this.options.logger)
+      .catch(common.wrapError('creating package with NuGet'))
+  }
+
+  /**
+   * Create the nuspec file for the package.
+   *
+   * See: https://docs.nuget.org/create/nuspec-reference
+   */
+  createSpec () {
+    const src = path.resolve(__dirname, '../resources/spec.ejs')
+    this.options.logger(`Creating spec file at ${this.specPath}`)
+
+    return this.createTemplatedFile(src, this.specPath)
+      .catch(common.wrapError('creating spec file'))
+  }
+
+  /**
+   * Find the package just created.
+   */
+  findPackage () {
+    const packagePattern = path.join(this.stagingDir, 'nuget', '*.nupkg')
+    this.options.logger(`Finding package with pattern ${packagePattern}`)
+
+    return glob(packagePattern)
+      .then(files => files[0])
+      .catch(common.wrapError('finding package with pattern'))
+  }
+
+  /**
+   * Get the hash of default options for the installer. Some come from the info
+   * read from `package.json`, and some are hardcoded.
+   */
+  generateDefaults () {
+    return common.readMetadata(this.userSupplied)
+      .then(pkg => {
+        pkg = pkg || {}
+        const authors = [parseAuthor(pkg.author).name]
+
+        this.defaults = Object.assign(common.getDefaultsFromPackageJSON(pkg), {
+          version: pkg.version || '0.0.0',
+
+          copyright: pkg.copyright || (authors && `Copyright \u00A9 ${new Date().getFullYear()} ${authors.join(', ')}`),
+          authors: authors,
+          owners: authors,
+
+          exe: pkg.name ? `${pkg.name}.exe` : 'electron.exe',
+          icon: path.resolve(__dirname, '../resources/icon.ico'),
+          animation: path.resolve(__dirname, '../resources/animation.gif'),
+
+          iconUrl: undefined,
+          licenseUrl: undefined,
+          requireLicenseAcceptance: false,
+
+          tags: [],
+
+          certificateFile: undefined,
+          certificatePassword: undefined,
+          signWithParams: undefined,
+
+          remoteReleases: undefined,
+
+          noMsi: false
+        })
+
+        return this.defaults
       })
-    })
-}
-
-/**
- * Get the hash of options for the installer.
- */
-function getOptions (data, defaults) {
-  // Flatten everything for ease of use.
-  const options = _.defaults({}, data, data.options, defaults)
-
-  return options
-}
-
-/**
- * Create the nuspec file for the package.
- *
- * See: https://docs.nuget.org/create/nuspec-reference
- */
-function createSpec (options, dir) {
-  const specSrc = path.resolve(__dirname, '../resources/spec.ejs')
-  const specDest = path.join(dir, 'nuget', `${options.name}.nuspec`)
-  options.logger(`Creating spec file at ${specDest}`)
-
-  return common.generateTemplate(options, specSrc)
-    .then(data => fs.outputFile(specDest, data))
-    .catch(common.wrapError('creating spec file'))
-}
-
-/**
- * Copy the application into the package.
- */
-function createApplication (options, dir) {
-  const applicationDir = path.join(dir, options.name)
-  const updateSrc = path.resolve(__dirname, '../vendor/squirrel/Squirrel.exe')
-  const updateDest = path.join(applicationDir, 'Update.exe')
-  options.logger(`Copying application to ${applicationDir}`)
-
-  return fs.copy(options.src, applicationDir)
-    .then(() => fs.copy(updateSrc, updateDest))
-    .catch(common.wrapError('copying application directory'))
-}
-
-/**
- * Create subdirectories where intermediate files will live.
- */
-function createSubdirs (options, dir) {
-  options.logger(`Creating subdirectories under ${dir}`)
-
-  return fs.ensureDir(path.join(dir, 'nuget'))
-    .then(() => fs.ensureDir(path.join(dir, 'squirrel')))
-    .then(() => dir)
-    .catch(common.wrapError('creating temporary subdirectories'))
-}
-
-/**
- * Create the contents of the package.
- */
-function createContents (options, dir) {
-  return common.createContents(options, dir, [
-    createSpec,
-    createApplication
-  ])
-}
-
-/**
- * Package everything using `nuget`.
- */
-function createPackage (options, dir) {
-  options.logger(`Creating package at ${dir}`)
-
-  const applicationDir = path.join(dir, options.name)
-  const nugetDir = path.join(dir, 'nuget')
-  const specFile = path.join(nugetDir, `${options.name}.nuspec`)
-
-  const cmd = path.resolve(__dirname, '../vendor/nuget/nuget.exe')
-  const args = [
-    'pack',
-    specFile,
-    '-BasePath',
-    applicationDir,
-    '-OutputDirectory',
-    nugetDir,
-    '-NoDefaultExcludes'
-  ]
-
-  return spawn(cmd, args, options.logger)
-    .then(() => dir)
-    .catch(common.wrapError('creating package with NuGet'))
-}
-
-/**
- * Find the package just created.
- */
-function findPackage (options, dir) {
-  const packagePattern = path.join(dir, 'nuget', '*.nupkg')
-  options.logger(`Finding package with pattern ${packagePattern}`)
-
-  return glob(packagePattern)
-    .then(files => ({
-      dir: dir,
-      pkg: files[0]
-    })).catch(common.wrapError('finding package with pattern'))
-}
-
-/**
- * Sync remote releases.
- */
-function syncRemoteReleases (options, dir, pkg) {
-  if (!options.remoteReleases) {
-    return { dir: dir, pkg: pkg }
   }
 
-  options.logger(`Syncing package at ${dir}`)
+  /**
+   * Releasify everything using `squirrel`.
+   */
+  releasifyPackage () {
+    this.options.logger(`Releasifying package at ${this.stagingDir}`)
 
-  const url = options.remoteReleases
-  const squirrelDir = path.join(dir, 'squirrel')
+    const cmd = path.join(this.vendorDir, 'squirrel', process.platform === 'win32' ? 'Squirrel.com' : 'Squirrel-Mono.exe')
+    const args = [
+      '--releaseDir',
+      this.squirrelDir
+    ]
 
-  const cmd = path.resolve(__dirname, '../vendor/squirrel/SyncReleases.exe')
-  const args = [
-    '--url',
-    url,
-    '--releaseDir',
-    squirrelDir
-  ]
+    if (this.options.icon) {
+      args.push('--setupIcon', path.resolve(this.options.icon))
+    }
 
-  return spawn(cmd, args, options.logger)
-    .then(() => ({
-      dir: dir,
-      pkg: pkg
-    })).catch(common.wrapError('syncing remote releases'))
-}
+    if (this.options.animation) {
+      args.push('--loadingGif', path.resolve(this.options.animation))
+    }
 
-/**
- * Releasify everything using `squirrel`.
- */
-function releasifyPackage (options, dir, pkg) {
-  options.logger(`Releasifying package at ${dir}`)
+    if (this.options.signWithParams) {
+      args.push('--signWithParams', this.options.signWithParams)
+    } else if (this.options.certificateFile && this.options.certificatePassword) {
+      args.push('--signWithParams', [
+        '/a',
+        `/f "${path.resolve(this.options.certificateFile)}"`,
+        `/p "${this.options.certificatePassword}"`
+      ].join(' '))
+    }
 
-  const squirrelDir = path.join(dir, 'squirrel')
+    if (this.options.noMsi) {
+      args.push('--no-msi')
+    }
 
-  const cmd = path.resolve(__dirname, '../vendor/squirrel/' +
-    (process.platform === 'win32' ? 'Squirrel.com' : 'Squirrel-Mono.exe'))
-  const args = [
-    '--releasify',
-    pkg,
-    '--releaseDir',
-    squirrelDir
-  ]
-
-  if (options.icon) {
-    args.push('--setupIcon')
-    args.push(path.resolve(options.icon))
+    return this.findPackage()
+      .then(pkg => {
+        args.unshift('--releasify', pkg)
+        return spawn(cmd, args, this.options.logger)
+      }).catch(common.wrapError('releasifying package'))
   }
 
-  if (options.animation) {
-    args.push('--loadingGif')
-    args.push(path.resolve(options.animation))
+  /**
+   * Sync remote releases.
+   */
+  syncRemoteReleases () {
+    if (!this.options.remoteReleases) {
+      return
+    }
+
+    this.options.logger(`Syncing package at ${this.stagingDir}`)
+
+    const cmd = path.join(this.vendorDir, 'squirrel', 'SyncReleases.exe')
+    const args = [
+      '--url',
+      this.options.remoteReleases,
+      '--releaseDir',
+      this.squirrelDir
+    ]
+
+    return fs.ensureDir(this.squirrelDir, '0755')
+      .then(() => spawn(cmd, args, this.options.logger))
+      .catch(common.wrapError('syncing remote releases'))
   }
-
-  if (options.signWithParams) {
-    args.push('--signWithParams')
-    args.push(options.signWithParams)
-  } else if (options.certificateFile && options.certificatePassword) {
-    args.push('--signWithParams')
-    args.push([
-      '/a',
-      `/f "${path.resolve(options.certificateFile)}"`,
-      `/p "${options.certificatePassword}"`
-    ].join(' '))
-  }
-
-  if (options.noMsi) {
-    args.push('--no-msi')
-  }
-
-  return spawn(cmd, args, options.logger)
-    .then(() => dir)
-    .catch(common.wrapError('releasifying package'))
-}
-
-/**
- * Move the package files to the specified destination.
- */
-function movePackage (options, dir) {
-  const packagePattern = path.join(dir, 'squirrel', '*')
-
-  common.movePackage(packagePattern, options, dir)
 }
 
 /* ************************************************************************** */
 
-module.exports = function (data, callback) {
+module.exports = (data, callback) => {
   data.rename = data.rename || defaultRename
   data.logger = data.logger || defaultLogger
 
-  let options
+  if (callback) {
+    console.warn('The node-style callback is deprecated. In a future major version, it will be' +
+                 'removed in favor of a Promise-based async style.')
+  }
 
-  const promise = getDefaults(data)
-    .then(defaults => getOptions(data, defaults))
-    .then(generatedOptions => {
-      options = generatedOptions
-      return data.logger(`Creating package with options\n${JSON.stringify(options, null, 2)}`)
-    }).then(() => common.createDir(options))
-    .then(dir => createSubdirs(options, dir))
-    .then(dir => createContents(options, dir))
-    .then(dir => createPackage(options, dir))
-    .then(dir => findPackage(options, dir))
-    .then(data => syncRemoteReleases(options, data.dir, data.pkg))
-    .then(data => releasifyPackage(options, data.dir, data.pkg))
-    .then(dir => movePackage(options, dir))
+  const installer = new SquirrelInstaller(data)
+
+  const promise = installer.generateDefaults()
+    .then(() => installer.generateOptions())
+    .then(() => data.logger(`Creating package with options\n${JSON.stringify(installer.options, null, 2)}`))
+    .then(() => installer.createStagingDir())
+    .then(() => installer.createContents())
+    .then(() => installer.createPackage())
+    .then(() => installer.syncRemoteReleases())
+    .then(() => installer.releasifyPackage())
+    .then(() => installer.movePackage())
     .then(() => {
-      data.logger(`Successfully created package at ${options.dest}`)
-      return options
+      data.logger(`Successfully created package at ${installer.options.dest}`)
+      return installer.options
     }).catch(err => {
       data.logger(common.errorMessage('creating package', err))
       throw err
@@ -279,3 +247,5 @@ module.exports = function (data, callback) {
 
   return nodeify(promise, callback)
 }
+
+module.exports.Installer = SquirrelInstaller
