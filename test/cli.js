@@ -4,7 +4,7 @@ const describeCLI = require('./helpers/describe_cli')
 const Server = require('./helpers/server')
 
 describe('cli', function () {
-  this.timeout(20000)
+  this.timeout(30000)
 
   describeCLI('with an app with asar', true)
 

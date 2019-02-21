@@ -1,9 +1,24 @@
 language: csharp
+dist: xenial
 
 addons:
   apt:
     packages:
       - wine
+
+env:
+  - DEBUG="electron-installer-windows" NODE_VERSION="10"
+  - DEBUG="electron-installer-windows" NODE_VERSION="8"
+  - DEBUG="electron-installer-windows" NODE_VERSION="6"
+
+branches:
+  only:
+  - master
+  - /^v\d+\.\d+\.\d+/
+
+before_install: nvm install $NODE_VERSION
+install: npm install
+script: npm test
 
 deploy:
   provider: npm
@@ -12,17 +27,3 @@ deploy:
     secure: ndcMfT59PUPwBgEa2+5nu3vlqEmSEPuuqrx3tO/vECmm29CuZglRlzy6bGZCNzJgwzZoXR0BN9XqM5s/liyWeK4jIjGVqT38vmsYaCL70/1bNIbT7lM4Gk/FDq/lDcT3BNAT0utWNAwxuEK7sXMKI8qx96/5I+lhbmUnr1IIlvGDuZR19h8PTL91QLtOunRzXyHzrzRNbEMnQCxP+WNNTLviG3brhBQUyIEQU+KlnGizMfLRpArdSiV+9ESy7zcjfpC24KnSpBnmdpUOCDIcGrlTgNKU3s/JIs5BlAKy2N7bfYQGwYolpVil4MqB/v9J81rJuC+6gnbzM6Yk5JKOWZFjNapH1HWNKKHFktBeREP80InUYWlsYTzg3JZuoyGxQWMQP5PhkAv7mGRAzRG5wUeTALg59/1kEnvsNWLJeljKsHkUvUNh5armXa3aJ2QfIsaShlmoNQRKdU1Z3t54ejKOOXM674qGOg7DHXpE1S8YsOD20qkm16p6ozev0/oGhEyEvaeSpJ1+IonPqh9FHUOipOf0KN+MtCymM/4liMAq+lSRyfGw4ioe/QiraKwvV+OHOEfq+amVwUt6ihoFy12tC/rR+pYEL0ruxMxNDwtjXO+CI/PR617z6ZR9zufUxBPjKnAPF/2rneWH1E+jT1IrnMjmc+jSD7n/ujJ+gtY=
   on:
     tags: true
-
-env:
-  - DEBUG="electron-installer-windows" NODE_VERSION="10"
-  - DEBUG="electron-installer-windows" NODE_VERSION="8"
-  - DEBUG="electron-installer-windows" NODE_VERSION="6"
-
-before_install:
-  - nvm install $NODE_VERSION
-
-install:
-  - npm install
-
-script:
-  - npm test
