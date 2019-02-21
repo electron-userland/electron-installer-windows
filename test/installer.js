@@ -4,7 +4,7 @@ const describeInstaller = require('./helpers/describe_installer')
 const Server = require('./helpers/server')
 
 describe('module', function () {
-  this.timeout(20000)
+  this.timeout(30000)
 
   describeInstaller('with an app with asar', true, {
     productDescription: 'Just a test.'
