@@ -118,7 +118,8 @@ class SquirrelInstaller extends common.ElectronInstaller {
     return common.readMetadata(this.userSupplied)
       .then(pkg => {
         pkg = pkg || {}
-        const authors = [parseAuthor(pkg.author).name]
+        let authors
+        typeof pkg.author === 'string' ? authors = [parseAuthor(pkg.author).name] : authors = [pkg.author.name]
 
         this.defaults = Object.assign(common.getDefaultsFromPackageJSON(pkg), {
           version: pkg.version || '0.0.0',
