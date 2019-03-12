@@ -1,6 +1,7 @@
 'use strict'
 
 const describeInstaller = require('./helpers/describe_installer')
+const { describeInstallerWithException } = require('./helpers/describe_installer')
 const Server = require('./helpers/server')
 
 describe('module', function () {
@@ -20,6 +21,12 @@ describe('module', function () {
 
   // Signing only works on Win32.
   if (process.platform === 'win32') {
+    describeInstallerWithException('with an app with dashes in its name', true, {
+      name: 'name-with-dashes'
+    },
+    'Name cannot contain dashes on Windows systems'
+    )
+
     describeInstaller('with a signed app with asar', true, {
       productDescription: 'Just a test.',
       certificateFile: 'test/fixtures/certificate.pfx',
