@@ -10,22 +10,8 @@ const accessAll = require('./access_helper').accessAll
 
 const installer = require('../..')
 
-module.exports = function (desc, asar, testOptions) {
-  let appName
-  let options = {}
-
-  asar ? appName = 'footest' : appName = 'bartest'
-  asar ? options.src = 'test/fixtures/app-with-asar/' : options.src = 'test/fixtures/app-without-asar/'
-
-  options.dest = tmp.tmpNameSync({ prefix: 'electron-installer-windows-' })
-  options.options = testOptions
-  options.rename = (dest, src) => {
-    const ext = path.extname(src)
-    if (ext === '.exe' || ext === '.msi') {
-      src = `<%= name %>-<%= version %>-installer${ext}`
-    }
-    return path.join(dest, src)
-  }
+module.exports = function describeInstaller (desc, asar, testOptions) {
+  const [appName, options] = installerOptions(asar, testOptions)
 
   describe(desc, test => {
     before(() => installer(options))
@@ -47,4 +33,23 @@ module.exports = function (desc, asar, testOptions) {
       access('generates a delta `.nupkg` package', options.dest, `${appName}-0.0.1-delta.nupkg`)
     }
   })
+}
+
+function installerOptions (asar, testOptions) {
+  let options = {}
+
+  const appName = asar ? 'footest' : 'bartest'
+
+  options.src = asar ? 'test/fixtures/app-with-asar/' : 'test/fixtures/app-without-asar/'
+  options.dest = tmp.tmpNameSync({ prefix: 'electron-installer-windows-' })
+  options.options = testOptions
+  options.rename = (dest, src) => {
+    const ext = path.extname(src)
+    if (ext === '.exe' || ext === '.msi') {
+      src = `<%= name %>-<%= version %>-installer${ext}`
+    }
+    return path.join(dest, src)
+  }
+
+  return [appName, options]
 }

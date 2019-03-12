@@ -152,6 +152,15 @@ class SquirrelInstaller extends common.ElectronInstaller {
   }
 
   /**
+   * Flattens and merges default values, CLI-supplied options, and API-supplied options.
+   */
+  generateOptions () {
+    super.generateOptions()
+
+    this.options.name = common.sanitizeName(this.options.name, 'a-zA-Z0-9', '_')
+  }
+
+  /**
    * Releasify everything using `squirrel`.
    */
   releasifyPackage () {
