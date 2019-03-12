@@ -65,17 +65,6 @@ class SquirrelInstaller extends common.ElectronInstaller {
   }
 
   /**
-  * Check for dashes in the name for Windows systems
-  */
-  checkNameForDashes () {
-    if (process.platform === 'win32') {
-      if (this.options.name.indexOf('-') > -1) {
-        throw new Error('Name cannot contain dashes on Windows systems. Check your package.name and options.name')
-      }
-    }
-  }
-
-  /**
    * Package everything using `nuget`.
    */
   createPackage () {
@@ -163,6 +152,15 @@ class SquirrelInstaller extends common.ElectronInstaller {
   }
 
   /**
+   * Flattens and merges default values, CLI-supplied options, and API-supplied options.
+   */
+  generateOptions () {
+    super.generateOptions()
+
+    this.options.name = common.sanitizeName(this.options.name, 'a-zA-Z0-9', '_')
+  }
+
+  /**
    * Releasify everything using `squirrel`.
    */
   releasifyPackage () {
@@ -242,7 +240,6 @@ module.exports = (data, callback) => {
 
   const promise = installer.generateDefaults()
     .then(() => installer.generateOptions())
-    .then(() => installer.checkNameForDashes())
     .then(() => data.logger(`Creating package with options\n${JSON.stringify(installer.options, null, 2)}`))
     .then(() => installer.createStagingDir())
     .then(() => installer.createContents())

@@ -35,23 +35,10 @@ module.exports = function describeInstaller (desc, asar, testOptions) {
   })
 }
 
-module.exports.describeInstallerWithException = function describeInstallerWithException (desc, asar, testOptions, errorRegex) {
-  const [, options] = installerOptions(asar, testOptions)
-
-  describe(desc, test => {
-    it('throws an error', () => {
-      return installer(options)
-        .catch(error => chai.expect(error.message).to.have.string(errorRegex))
-    })
-
-    after(() => fs.remove(options.dest))
-  })
-}
-
 function installerOptions (asar, testOptions) {
   let options = {}
 
-  const appName = testOptions.name || (asar ? 'footest' : 'bartest')
+  const appName = asar ? 'footest' : 'bartest'
 
   options.src = asar ? 'test/fixtures/app-with-asar/' : 'test/fixtures/app-without-asar/'
   options.dest = tmp.tmpNameSync({ prefix: 'electron-installer-windows-' })
