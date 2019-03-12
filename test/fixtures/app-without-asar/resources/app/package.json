@@ -15,5 +15,9 @@
   "companyName": "Daniel Perez Alvarez",
   "companyUrl": "https://github.com/electron-userland/",
 
-  "author": "Daniel Perez Alvarez <unindented@gmail.com> (https://unindented.org/)"
+  "author": {
+    "name": "Daniel Perez Alvarez",
+    "email": "unindented@gmail.com",
+    "url": "https://unindented.org/"
+  }
 }
