@@ -242,7 +242,7 @@ Name of the application (e.g., `Atom`), used in the [`title` field of the `nuspe
 Type: `String`
 Default: `${package.name}.exe || electron.exe`
 
-Relative path to the executable created by `electron-packager`. Note that [`electron-packager` uses `package.productName` as the default](https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#name).
+Relative path to the executable created by Electron Packager. Note that [Electron Packager uses `package.productName` as the default](https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#name).
 
 #### options.description
 Type: `String`
