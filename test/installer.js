@@ -12,7 +12,7 @@ describe('module', function () {
 
   describeInstaller('with an app without asar', false, {
     icon: 'test/fixtures/icon.ico',
-    bin: 'bartest.exe',
+    exe: 'bartest.exe',
     tags: [
       'Utility'
     ]
@@ -28,7 +28,7 @@ describe('module', function () {
 
     describeInstaller('with a signed app without asar', false, {
       icon: 'test/fixtures/icon.ico',
-      bin: 'bartest.exe',
+      exe: 'bartest.exe',
       tags: [
         'Utility'
       ],
