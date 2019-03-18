@@ -9,7 +9,7 @@ This tool relies on the awesome [Squirrel.Windows](https://github.com/Squirrel/S
 
 ## Requirements
 
-This tool requires Node 6 or greater.
+This tool requires Node 8 or greater.
 
 I'd recommend building your packages on your target platform, but if you have to run this on Mac OS X or Linux, you will need to install `mono` and `wine` through your package manager.
 
@@ -172,19 +172,11 @@ installer(options)
     process.exit(1)
   })
 ```
-Alternatively, it is possible to use the callback pattern:
-```javascript
-installer(options, (err) => {
-  if (err) {
-    console.error(err, err.stack)
-    process.exit(1)
-  }
-
-  console.log(`Successfully created package at ${options.dest}`)
-})
-```
 
 You'll end up with the package at `dist/installers/app-0.0.1-setup.exe`.
+
+_Note: As of 2.0.0, the Node-style callback pattern is no longer available. You can use [`nodeify`](https://npm.im/nodeify) if this is required for your use case._
+
 
 ### Options
 
