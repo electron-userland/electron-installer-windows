@@ -4,9 +4,7 @@ const chai = require('chai')
 const fs = require('fs-extra')
 const path = require('path')
 const tmp = require('tmp-promise')
-const access = require('./access_helper').access
-const testAccess = require('./access_helper').testAccess
-const accessAll = require('./access_helper').accessAll
+const { access, testAccess, accessAll } = require('./access_helper')
 
 const installer = require('../..')
 

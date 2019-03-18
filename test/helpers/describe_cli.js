@@ -4,9 +4,7 @@ const chai = require('chai')
 const fs = require('fs-extra')
 const { spawn } = require('electron-installer-common')
 const tmp = require('tmp-promise')
-const access = require('./access_helper').access
-const testAccess = require('./access_helper').testAccess
-const accessAll = require('./access_helper').accessAll
+const { access, testAccess, accessAll } = require('./access_helper')
 
 function printLogs (logs) {
   if (process.env.DEBUG === 'electron-installer-windows') {
