@@ -304,18 +304,6 @@ Default: `undefined`
 
 URL for the image to use as the icon for the package in the *Manage NuGet Packages* dialog box, used in the [`iconUrl` field of the `spec` file](https://docs.nuget.org/create/nuspec-reference).
 
-#### options.licenseUrl
-Type: `String`
-Default: `undefined`
-
-URL for the license that the package is under, used in the [`licenseUrl` field of the `spec` file](https://docs.nuget.org/create/nuspec-reference).
-
-#### options.requireLicenseAcceptance
-Type: `String`
-Default: `false`
-
-Whether the client needs to ensure that the package license (described by `licenseUrl`) is accepted before the package is installed, used in the [`requireLicenseAcceptance` field of the `spec` file](https://docs.nuget.org/create/nuspec-reference).
-
 #### options.tags
 Type: `Array[String]`
 Default: `[]`

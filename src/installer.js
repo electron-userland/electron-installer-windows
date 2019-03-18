@@ -133,8 +133,6 @@ class SquirrelInstaller extends common.ElectronInstaller {
           animation: path.resolve(__dirname, '../resources/animation.gif'),
 
           iconUrl: undefined,
-          licenseUrl: undefined,
-          requireLicenseAcceptance: false,
 
           tags: [],
 
