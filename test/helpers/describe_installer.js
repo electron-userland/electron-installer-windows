@@ -35,6 +35,20 @@ module.exports = function describeInstaller (desc, asar, testOptions) {
   })
 }
 
+module.exports.describeInstallerWithException = function describeInstallerWithException (desc, testOptions, errorRegex) {
+  const [, options] = installerOptions(false, testOptions)
+  options.src = testOptions.src
+
+  describe(desc, test => {
+    it('throws an error', () => {
+      return installer(options)
+        .catch(error => chai.expect(error.message).to.match(errorRegex))
+    })
+
+    after(() => fs.remove(options.dest))
+  })
+}
+
 function installerOptions (asar, testOptions) {
   let options = {}
 

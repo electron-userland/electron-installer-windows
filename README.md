@@ -270,13 +270,13 @@ Copyright details for the package, used in the [`copyright` field of the `nuspec
 
 #### options.authors
 Type: `Array[String]`
-Default: `package.author`
+Default: `[package.author]`
 
 List of authors of the package, used in the [`authors` field of the `spec` file](https://docs.nuget.org/create/nuspec-reference).
 
 #### options.owners
 Type: `Array[String]`
-Default: `package.author`
+Default: `[package.author]`
 
 List of owners of the package, used in the [`authors` field of the `spec` file](https://docs.nuget.org/create/nuspec-reference).
 
