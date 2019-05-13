@@ -52,6 +52,6 @@
     "mocha": "^6.1.2",
     "promise-retry": "^1.1.1",
     "serve-static": "^1.13.2",
-    "tmp-promise": "^1.0.5"
+    "tmp-promise": "^2.0.0"
   }
 }
