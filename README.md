@@ -175,7 +175,7 @@ installer(options)
 
 You'll end up with the package at `dist/installers/app-0.0.1-setup.exe`.
 
-_Note: As of 2.0.0, the Node-style callback pattern is no longer available. You can use [`nodeify`](https://npm.im/nodeify) if this is required for your use case._
+_Note: As of 2.0.0, the Node-style callback pattern is no longer available. You can use [`util.callbackify`](https://nodejs.org/dist/latest-v8.x/docs/api/util.html#util_util_callbackify_original) if this is required for your use case._
 
 
 ### Options
