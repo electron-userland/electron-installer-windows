@@ -3,9 +3,10 @@
 const common = require('electron-installer-common')
 const debug = require('debug')
 const fs = require('fs-extra')
-const glob = require('glob-promise')
 const parseAuthor = require('parse-author')
 const path = require('path')
+const { promisify } = require('util')
+const glob = promisify(require('glob'))
 
 const spawn = require('./spawn')
 
