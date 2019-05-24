@@ -2,7 +2,7 @@
 
 From this directory, run the following commands to build the Windows packages for the app:
 
-```
+```shell
 $ npm install
 $ npm run build
 ```

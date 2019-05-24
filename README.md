@@ -20,13 +20,13 @@ You won't get an `.msi` installer though, only `.nupkg` and `.exe` installers. T
 
 For use from command-line:
 
-```
+```shell
 $ npm install -g electron-installer-windows
 ```
 
 For use in npm scripts or programmatically:
 
-```
+```shell
 $ npm install --save-dev electron-installer-windows
 ```
 
@@ -58,7 +58,7 @@ Say your Electron app lives in `path/to/app` and has a structure like this:
 
 You now run `electron-packager` to build the app for Windows:
 
-```
+```shell
 $ electron-packager . app --platform win32 --arch x64 --out dist/
 ```
 
@@ -97,13 +97,13 @@ How do you turn that into a Windows package that your users can install?
 
 If you want to run `electron-installer-windows` straight from the command-line, install the package globally:
 
-```
+```shell
 $ npm install -g electron-installer-windows
 ```
 
 And point it to your built app:
 
-```
+```shell
 $ electron-installer-windows --src dist/app-win32-x64/ --dest dist/installers/
 ```
 
@@ -113,13 +113,13 @@ You'll end up with the package at `dist/installers/app-0.0.1-setup.exe`.
 
 If you want to run `electron-installer-windows` through npm, install the package locally:
 
-```
+```shell
 $ npm install --save-dev electron-installer-windows
 ```
 
 Edit the `scripts` section of your `package.json`:
 
-```javascript
+```json
 {
   "name": "app",
   "description": "An awesome app!",
@@ -139,7 +139,7 @@ Edit the `scripts` section of your `package.json`:
 
 And run the script:
 
-```
+```shell
 $ npm run setup
 ```
 
@@ -149,7 +149,7 @@ You'll end up with the package at `dist/installers/app-0.0.1-setup.exe`.
 
 Install the package locally:
 
-```
+```shell
 $ npm install --save-dev electron-installer-windows
 ```
 
@@ -183,7 +183,7 @@ _Note: As of 2.0.0, the Node-style callback pattern is no longer available. You 
 
 Even though you can pass most of these options through the command-line interface, it may be easier to create a configuration file:
 
-```javascript
+```json
 {
   "dest": "dist/installers/",
   "icon": "resources/Icon.ico",
@@ -195,7 +195,7 @@ Even though you can pass most of these options through the command-line interfac
 
 And pass that instead with the `config` option:
 
-```
+```shell
 $ electron-installer-windows --src dist/app-win32-x64/ --config config.json
 ```
 
@@ -344,14 +344,14 @@ Internet Explorer's SmartScreen Filter and antivirus programs may flag your pack
 
 To generate the certificate, open the *Developer Command Prompt for Visual Studio* and execute the following:
 
-```
+```shell
 $ makecert -sv my_private_key.pvk -n "CN=MyTestCertificate" my_test_certificate.cer -b 01/01/2016 -e 01/01/2026 -r
 $ pvk2pfx -pvk my_private_key.pvk -spc my_test_certificate.cer -pfx my_signing_key.pfx -po my_password
 ```
 
 Now we can tell `electron-installer-windows` to sign the packages that it generates with that certificate:
 
-```
+```shell
 $ electron-installer-windows --src dist/app-win32-x64/ --dest dist/installers/ --certificateFile my_signing_key.pfx --certificatePassword my_password
 ```
 
