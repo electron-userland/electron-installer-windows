@@ -23,7 +23,7 @@ function updateExecutableMissingException (err, updateError) {
   }
 }
 
-module.exports = function (cmd, args, logger) {
+module.exports = async function (cmd, args, logger) {
   if (process.platform !== 'win32') {
     args.unshift(cmd)
     cmd = 'mono'

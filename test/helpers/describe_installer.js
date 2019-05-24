@@ -12,18 +12,20 @@ module.exports = function describeInstaller (desc, asar, testOptions) {
   const [appName, options] = installerOptions(asar, testOptions)
 
   describe(desc, test => {
-    before(() => installer(options))
+    before(async () => installer(options))
 
-    after(() => fs.remove(options.dest))
+    after(async () => fs.remove(options.dest))
 
     accessAll(appName, options.dest, false)
 
     if (testOptions.remoteReleases && asar) {
-      it('does not generate a delta `.nupkg` package', () => {
-        return testAccess(`${options.dest}/${appName}-0.0.1-delta.nupkg`)
-          .then(() => {
-            throw new Error('delta `.nupkg` was created')
-          }).catch(error => chai.expect(error.message).to.have.string('no such file or directory'))
+      it('does not generate a delta `.nupkg` package', async () => {
+        try {
+          await testAccess(`${options.dest}/${appName}-0.0.1-delta.nupkg`)
+          throw new Error('delta `.nupkg` was created')
+        } catch (error) {
+          chai.expect(error.message).to.have.string('no such file or directory')
+        }
       })
     }
 
@@ -38,12 +40,15 @@ module.exports.describeInstallerWithException = function describeInstallerWithEx
   options.src = testOptions.src
 
   describe(desc, test => {
-    it('throws an error', () => {
-      return installer(options)
-        .catch(error => chai.expect(error.message).to.match(errorRegex))
+    it('throws an error', async () => {
+      try {
+        await installer(options)
+      } catch (error) {
+        chai.expect(error.message).to.match(errorRegex)
+      }
     })
 
-    after(() => fs.remove(options.dest))
+    after(async () => fs.remove(options.dest))
   })
 }
 

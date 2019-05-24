@@ -52,16 +52,15 @@ class SquirrelInstaller extends common.ElectronInstaller {
   /**
    * Copy the application into the package.
    */
-  copyApplication () {
-    return super.copyApplication()
-      .then(() => this.copySquirrelUpdater())
+  async copyApplication () {
+    await super.copyApplication()
+    return this.copySquirrelUpdater()
   }
 
   copySquirrelUpdater () {
     const updateSrc = path.join(this.vendorDir, 'squirrel', 'Squirrel.exe')
     const updateDest = path.join(this.stagingAppDir, 'Update.exe')
-    return fs.copy(updateSrc, updateDest)
-      .catch(common.wrapError('copying Squirrel updater'))
+    return common.wrapError('copying Squirrel updater', async () => fs.copy(updateSrc, updateDest))
   }
 
   /**
@@ -81,8 +80,7 @@ class SquirrelInstaller extends common.ElectronInstaller {
       '-NoDefaultExcludes'
     ]
 
-    return spawn(cmd, args, this.options.logger)
-      .catch(common.wrapError('creating package with NuGet'))
+    return common.wrapError('creating package with NuGet', async () => spawn(cmd, args, this.options.logger))
   }
 
   /**
@@ -94,8 +92,7 @@ class SquirrelInstaller extends common.ElectronInstaller {
     const src = path.resolve(__dirname, '../resources/spec.ejs')
     this.options.logger(`Creating spec file at ${this.specPath}`)
 
-    return this.createTemplatedFile(src, this.specPath)
-      .catch(common.wrapError('creating spec file'))
+    return common.wrapError('creating spec file', async () => this.createTemplatedFile(src, this.specPath))
   }
 
   /**
@@ -105,48 +102,43 @@ class SquirrelInstaller extends common.ElectronInstaller {
     const packagePattern = path.join(this.stagingDir, 'nuget', '*.nupkg')
     this.options.logger(`Finding package with pattern ${packagePattern}`)
 
-    return glob(packagePattern)
-      .then(files => files[0])
-      .catch(common.wrapError('finding package with pattern'))
+    return common.wrapError('finding package with pattern', async () => (await glob(packagePattern))[0])
   }
 
   /**
    * Get the hash of default options for the installer. Some come from the info
    * read from `package.json`, and some are hardcoded.
    */
-  generateDefaults () {
-    return common.readMetadata(this.userSupplied)
-      .then(pkg => {
-        pkg = pkg || {}
+  async generateDefaults () {
+    const pkg = (await common.readMetadata(this.userSupplied)) || {}
 
-        const authors = pkg.author ? [typeof pkg.author === 'string' ? parseAuthor(pkg.author).name : pkg.author.name] : undefined
+    const authors = pkg.author ? [typeof pkg.author === 'string' ? parseAuthor(pkg.author).name : pkg.author.name] : undefined
 
-        this.defaults = Object.assign(common.getDefaultsFromPackageJSON(pkg), {
-          version: pkg.version || '0.0.0',
+    this.defaults = Object.assign(common.getDefaultsFromPackageJSON(pkg), {
+      version: pkg.version || '0.0.0',
 
-          copyright: pkg.copyright || (authors && `Copyright \u00A9 ${new Date().getFullYear()} ${authors.join(', ')}`),
-          authors: authors,
-          owners: authors,
+      copyright: pkg.copyright || (authors && `Copyright \u00A9 ${new Date().getFullYear()} ${authors.join(', ')}`),
+      authors: authors,
+      owners: authors,
 
-          exe: pkg.name ? `${pkg.name}.exe` : 'electron.exe',
-          icon: path.resolve(__dirname, '../resources/icon.ico'),
-          animation: path.resolve(__dirname, '../resources/animation.gif'),
+      exe: pkg.name ? `${pkg.name}.exe` : 'electron.exe',
+      icon: path.resolve(__dirname, '../resources/icon.ico'),
+      animation: path.resolve(__dirname, '../resources/animation.gif'),
 
-          iconUrl: undefined,
+      iconUrl: undefined,
 
-          tags: [],
+      tags: [],
 
-          certificateFile: undefined,
-          certificatePassword: undefined,
-          signWithParams: undefined,
+      certificateFile: undefined,
+      certificatePassword: undefined,
+      signWithParams: undefined,
 
-          remoteReleases: undefined,
+      remoteReleases: undefined,
 
-          noMsi: false
-        })
+      noMsi: false
+    })
 
-        return this.defaults
-      })
+    return this.defaults
   }
 
   /**
@@ -164,12 +156,14 @@ class SquirrelInstaller extends common.ElectronInstaller {
     if (!this.options.authors) {
       throw new Error(`No Authors provided. Please set an author in the app's package.json or provide it in the this.options.`)
     }
+
+    return this.options
   }
 
   /**
    * Releasify everything using `squirrel`.
    */
-  releasifyPackage () {
+  async releasifyPackage () {
     this.options.logger(`Releasifying package at ${this.stagingDir}`)
 
     const cmd = path.join(this.vendorDir, 'squirrel', process.platform === 'win32' ? 'Squirrel.com' : 'Squirrel-Mono.exe')
@@ -200,17 +194,17 @@ class SquirrelInstaller extends common.ElectronInstaller {
       args.push('--no-msi')
     }
 
-    return this.findPackage()
-      .then(pkg => {
-        args.unshift('--releasify', pkg)
-        return spawn(cmd, args, this.options.logger)
-      }).catch(common.wrapError('releasifying package'))
+    return common.wrapError('releasifying package', async () => {
+      const pkg = await this.findPackage()
+      args.unshift('--releasify', pkg)
+      return spawn(cmd, args, this.options.logger)
+    })
   }
 
   /**
    * Sync remote releases.
    */
-  syncRemoteReleases () {
+  async syncRemoteReleases () {
     if (!this.options.remoteReleases) {
       return
     }
@@ -225,36 +219,32 @@ class SquirrelInstaller extends common.ElectronInstaller {
       this.squirrelDir
     ]
 
-    return fs.ensureDir(this.squirrelDir, '0755')
-      .then(() => spawn(cmd, args, this.options.logger))
-      .catch(common.wrapError('syncing remote releases'))
+    return common.wrapError('syncing remote releases', async () => {
+      await fs.ensureDir(this.squirrelDir, '0755')
+      return spawn(cmd, args, this.options.logger)
+    })
   }
 }
 
 /* ************************************************************************** */
 
-module.exports = data => {
+module.exports = async data => {
   data.rename = data.rename || defaultRename
   data.logger = data.logger || defaultLogger
 
   const installer = new SquirrelInstaller(data)
 
-  return installer.generateDefaults()
-    .then(() => installer.generateOptions())
-    .then(() => data.logger(`Creating package with options\n${JSON.stringify(installer.options, null, 2)}`))
-    .then(() => installer.createStagingDir())
-    .then(() => installer.createContents())
-    .then(() => installer.createPackage())
-    .then(() => installer.syncRemoteReleases())
-    .then(() => installer.releasifyPackage())
-    .then(() => installer.movePackage())
-    .then(() => {
-      data.logger(`Successfully created package at ${installer.options.dest}`)
-      return installer.options
-    }).catch(err => {
-      data.logger(common.errorMessage('creating package', err))
-      throw err
-    })
+  await installer.generateDefaults()
+  await installer.generateOptions()
+  data.logger(`Creating package with options\n${JSON.stringify(installer.options, null, 2)}`)
+  await installer.createStagingDir()
+  await installer.createContents()
+  await installer.createPackage()
+  await installer.syncRemoteReleases()
+  await installer.releasifyPackage()
+  await installer.movePackage()
+  data.logger(`Successfully created package at ${installer.options.dest}`)
+  return installer.options
 }
 
 module.exports.Installer = SquirrelInstaller

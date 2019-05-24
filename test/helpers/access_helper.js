@@ -5,24 +5,34 @@ const path = require('path')
 const retry = require('promise-retry')
 
 // `fs.access` which retries three times.
-module.exports.testAccess = (path) => retry((retry, number) => {
-  return fs.access(path)
-    .then(() => 'done accessing')
-    .catch(retry)
-}, { retries: 3, minTimeout: 500 })
-
-module.exports.access = (desc, dir, filename) => {
-  it(desc, () => module.exports.testAccess(path.join(dir, filename)))
+async function testAccess (path) {
+  return retry((retry, number) => {
+    return fs.access(path)
+      .catch(retry)
+  }, {
+    retries: 3,
+    minTimeout: 500
+  })
 }
 
-module.exports.accessAll = (appName, dir, cli) => {
+function access (desc, dir, filename) {
+  it(desc, async () => testAccess(path.join(dir, filename)))
+}
+
+function accessAll (appName, dir, cli) {
   let test
   cli ? test = 'setup' : test = 'installer'
 
-  module.exports.access('generates a `RELEASES` manifest', dir, 'RELEASES')
-  module.exports.access('generates a `.nupkg` package', dir, `${appName}-0.0.1-full.nupkg`)
-  module.exports.access('generates a `.exe` package', dir, `${appName}-0.0.1-${test}.exe`)
+  access('generates a `RELEASES` manifest', dir, 'RELEASES')
+  access('generates a `.nupkg` package', dir, `${appName}-0.0.1-full.nupkg`)
+  access('generates a `.exe` package', dir, `${appName}-0.0.1-${test}.exe`)
   if (process.platform === 'win32') {
-    module.exports.access('generates a `.msi` package', dir, `${appName}-0.0.1-${test}.msi`)
+    access('generates a `.msi` package', dir, `${appName}-0.0.1-${test}.msi`)
   }
+}
+
+module.exports = {
+  testAccess,
+  access,
+  accessAll
 }

@@ -26,9 +26,9 @@ describe('cli', function () {
   describe('with a releases server', function (test) {
     const server = new Server('test/fixtures/releases/', 3000)
 
-    before(() => server.runServer())
+    before(async () => server.runServer())
 
-    after(() => server.closeServer())
+    after(async () => server.closeServer())
 
     describeCLI('with an app with asar with the same remote release', true, {
       remoteReleases: 'http://localhost:3000/foo/'
