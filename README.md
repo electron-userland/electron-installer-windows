@@ -163,15 +163,17 @@ const options = {
   dest: 'dist/installers/'
 }
 
-console.log('Creating package (this may take a while)')
-
-try {
-  await installer(options)
-  console.log(`Successfully created package at ${options.dest}`)
-} catch(err) {
+async function main (options) {
+  console.log('Creating package (this may take a while)')
+  try {
+    await installer(options)
+    console.log(`Successfully created package at ${options.dest}`)
+  } catch (err) {
     console.error(err, err.stack)
     process.exit(1)
+  }
 }
+main(options)
 ```
 
 You'll end up with the package at `dist/installers/app-0.0.1-setup.exe`.
