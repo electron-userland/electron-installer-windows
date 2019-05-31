@@ -4,7 +4,7 @@ const chai = require('chai')
 const fs = require('fs-extra')
 const { spawn } = require('electron-installer-common')
 const tmp = require('tmp-promise')
-const { access, testAccess, accessAll } = require('./access_helper')
+const { access, accessAll } = require('./access_helper')
 
 function printLogs (logs) {
   if (process.env.DEBUG === 'electron-installer-windows') {
@@ -49,12 +49,7 @@ module.exports = function (desc, asar, options) {
 
     if (options.remoteReleases && asar) {
       it('does not generate a delta `.nupkg` package', async () => {
-        try {
-          await testAccess(`${options.dest}/${appName}-0.0.1-delta.nupkg'`)
-          throw new Error('delta `.nupkg` was created')
-        } catch (error) {
-          chai.expect(error.message).to.have.string('no such file or directory')
-        }
+        return chai.expect(await fs.pathExists(`${options.dest}/${appName}-0.0.1-delta.nupkg'`)).to.be.false
       })
     }
 

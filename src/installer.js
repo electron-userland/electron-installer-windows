@@ -102,7 +102,10 @@ class SquirrelInstaller extends common.ElectronInstaller {
     const packagePattern = path.join(this.stagingDir, 'nuget', '*.nupkg')
     this.options.logger(`Finding package with pattern ${packagePattern}`)
 
-    return common.wrapError('finding package with pattern', async () => (await glob(packagePattern))[0])
+    return common.wrapError('finding package with pattern', async () => {
+      const files = await glob(packagePattern)
+      return files[0]
+    })
   }
 
   /**
