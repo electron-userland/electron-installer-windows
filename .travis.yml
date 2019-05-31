@@ -7,6 +7,7 @@ addons:
       - wine
 
 env:
+  - DEBUG="electron-installer-windows" NODE_VERSION="12"
   - DEBUG="electron-installer-windows" NODE_VERSION="10"
   - DEBUG="electron-installer-windows" NODE_VERSION="8"
 

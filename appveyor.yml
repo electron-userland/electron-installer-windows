@@ -5,23 +5,21 @@ init:
 
 environment:
   DEBUG: 'electron-installer-windows'
-
   matrix:
-    - platform: x86
-      nodejs_version: '10'
-    - platform: x64
-      nodejs_version: '10'
-    - platform: x86
-      nodejs_version: '8'
-    - platform: x64
-      nodejs_version: '8'
+    - nodejs_version: "12"
+    - nodejs_version: "10"
+    - nodejs_version: "8"
+
+platform:
+  - x86
+  - x64
 
 branches:
   only:
     - master
 
 install:
-  - ps: Install-Product node $env:nodejs_version
+  - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version) $env:PLATFORM
   - npm install
 
 build: off
