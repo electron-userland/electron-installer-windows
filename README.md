@@ -363,12 +363,12 @@ Boom, that's it. Now [get a standard code signing certificate](https://msdn.micr
 ## Maintenance
 
 ### Squirrel
-Current version: 1.9.0
+Current version: 1.9.1
 
 To update [Squirrel](https://github.com/Squirrel/Squirrel.Windows) to the latest version, head over to the [releases page](https://www.nuget.org/packages/squirrel.windows/)
 
 ### NuGet
-Current version: 4.8.1
+Current version: 5.1.0
 
 To update [NuGet](https://github.com/nuget/home) to the latest version, head over to the [releases page](https://www.nuget.org/downloads).
 
