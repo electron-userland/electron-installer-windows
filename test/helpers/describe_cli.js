@@ -4,9 +4,7 @@ const chai = require('chai')
 const fs = require('fs-extra')
 const { spawn } = require('electron-installer-common')
 const tmp = require('tmp-promise')
-const access = require('./access_helper').access
-const testAccess = require('./access_helper').testAccess
-const accessAll = require('./access_helper').accessAll
+const { access, accessAll } = require('./access_helper')
 
 function printLogs (logs) {
   if (process.env.DEBUG === 'electron-installer-windows') {
@@ -40,22 +38,18 @@ module.exports = function (desc, asar, options) {
   if (options.remoteReleases) args.push('--remoteReleases', options.remoteReleases)
 
   describe(desc, test => {
-    before((done) => {
-      spawn('./src/cli.js', args, null, null)
-        .then(logs => printLogs(logs))
-        .then(() => done())
+    before(async () => {
+      const logs = await spawn('./src/cli.js', args, null, null)
+      printLogs(logs)
     })
 
-    after(() => fs.remove(options.dest))
+    after(async () => fs.remove(options.dest))
 
     accessAll(appName, options.dest, true)
 
     if (options.remoteReleases && asar) {
-      it('does not generate a delta `.nupkg` package', () => {
-        return testAccess(`${options.dest}/${appName}-0.0.1-delta.nupkg'`)
-          .then(() => {
-            throw new Error('delta `.nupkg` was created')
-          }).catch(error => chai.expect(error.message).to.have.string('no such file or directory'))
+      it('does not generate a delta `.nupkg` package', async () => {
+        return chai.expect(await fs.pathExists(`${options.dest}/${appName}-0.0.1-delta.nupkg'`)).to.be.false
       })
     }
 

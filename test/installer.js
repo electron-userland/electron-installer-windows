@@ -57,9 +57,9 @@ describe('module', function () {
   describe('with a releases server', function (test) {
     const server = new Server('test/fixtures/releases/', 3000)
 
-    before(() => server.runServer())
+    before(async () => server.runServer())
 
-    after(() => server.closeServer())
+    after(async () => server.closeServer())
 
     describeInstaller('with an app with asar with the same remote release', true, {
       productDescription: 'Just a test.',

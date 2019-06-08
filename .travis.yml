@@ -7,14 +7,15 @@ addons:
       - wine
 
 env:
-  - DEBUG="electron-installer-windows" NODE_VERSION="10"
+  - DEBUG="electron-installer-windows" NODE_VERSION="12"
   - DEBUG="electron-installer-windows" NODE_VERSION="8"
-  - DEBUG="electron-installer-windows" NODE_VERSION="6"
 
 branches:
   only:
   - master
   - /^v\d+\.\d+\.\d+/
+
+cache: npm
 
 before_install: nvm install $NODE_VERSION
 install: npm install
