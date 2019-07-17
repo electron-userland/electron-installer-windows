@@ -53,7 +53,7 @@ module.exports.describeInstallerWithException = function describeInstallerWithEx
 }
 
 function installerOptions (asar, testOptions) {
-  let options = {}
+  const options = {}
 
   const appName = asar ? 'footest' : 'bartest'
 

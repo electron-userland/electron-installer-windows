@@ -29,7 +29,7 @@ module.exports = function (desc, asar, options) {
 
   options.dest = tmp.tmpNameSync({ prefix: 'electron-installer-windows-' })
 
-  const args = [ '--src', options.src, '--dest', options.dest ]
+  const args = ['--src', options.src, '--dest', options.dest]
 
   if (options.certificateFile && options.certificatePassword) {
     args.push('--certificateFile', options.certificateFile)
