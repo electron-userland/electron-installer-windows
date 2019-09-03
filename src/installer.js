@@ -153,11 +153,11 @@ class SquirrelInstaller extends common.ElectronInstaller {
     this.options.name = common.sanitizeName(this.options.name, 'a-zA-Z0-9', '_')
 
     if (!this.options.description && !this.options.productDescription) {
-      throw new Error(`No Description or ProductDescription provided. Please set either a description in the app's package.json or provide it in the this.options.`)
+      throw new Error("No Description or ProductDescription provided. Please set either a description in the app's package.json or provide it in the this.options.")
     }
 
     if (!this.options.authors) {
-      throw new Error(`No Authors provided. Please set an author in the app's package.json or provide it in the this.options.`)
+      throw new Error("No Authors provided. Please set an author in the app's package.json or provide it in the this.options.")
     }
 
     return this.options
