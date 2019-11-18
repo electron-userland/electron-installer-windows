@@ -36,7 +36,7 @@
     "lodash": "^4.17.15",
     "parse-author": "^2.0.0",
     "which": "^2.0.1",
-    "yargs": "^14.0.0"
+    "yargs": "^15.0.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
