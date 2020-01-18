@@ -1,5 +1,5 @@
 {
-  "name": "poopie",
+  "name": "example-electron-app",
   "description": "An example app, built with Electron.",
   "version": "0.0.1",
   "license": "MIT",
@@ -13,20 +13,20 @@
   "scripts": {
     "clean": "rimraf dist",
     "start": "electron .",
-    "exe32": "electron-packager . poopie --platform win32 --arch ia32 --out dist/ --icon resources/Icon.ico",
-    "exe64": "electron-packager . poopie --platform win32 --arch x64 --out dist/ --icon resources/Icon.ico",
-    "set32": "electron-installer-windows --src dist/poopie-win32-ia32/ --dest dist/installers/ia32/ --config config.json",
-    "set64": "electron-installer-windows --src dist/poopie-win32-x64/ --dest dist/installers/x64/ --config config.json",
-    "build": "npm run clean && npm run exe32 && npm run set32 && npm run exe64 && npm run set64"
+    "bundle:ia32": "electron-packager . --platform win32 --arch ia32 --out dist/ --icon resources/Icon.ico",
+    "bundle:x64": "electron-packager . --platform win32 --arch x64 --out dist/ --icon resources/Icon.ico",
+    "exe:ia32": "electron-installer-windows --src dist/example-electron-app-win32-ia32/ --dest dist/installers/ia32/ --config config.json",
+    "exe:x64": "electron-installer-windows --src dist/example-electron-app-win32-x64/ --dest dist/installers/x64/ --config config.json",
+    "build": "npm run clean && npm run bundle:ia32 && npm run bundle:x64 && npm run exe:ia32 && npm run exe:x64"
   },
   "devDependencies": {
-    "electron": "*",
+    "electron": "^7.0.0",
     "electron-installer-windows": "*",
-    "electron-packager": "*",
-    "rimraf": "*"
+    "electron-packager": "^14.2.0",
+    "rimraf": "^3.0.0"
   },
   "dependencies": {
-    "fs-plus": "^3.0.2",
-    "yargs": "^11.0.0"
+    "fs-plus": "^3.1.1",
+    "yargs": "^15.1.0"
   }
 }
