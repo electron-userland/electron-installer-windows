@@ -8,7 +8,7 @@ addons:
 
 env:
   - DEBUG="electron-installer-windows" NODE_VERSION="12"
-  - DEBUG="electron-installer-windows" NODE_VERSION="8"
+  - DEBUG="electron-installer-windows" NODE_VERSION="10"
 
 branches:
   only:
@@ -18,7 +18,7 @@ branches:
 cache: npm
 
 before_install: nvm install $NODE_VERSION
-install: npm install
+install: npm install --engine-strict
 script: npm test
 
 deploy:
