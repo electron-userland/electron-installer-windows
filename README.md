@@ -9,7 +9,7 @@ This tool relies on the awesome [Squirrel.Windows](https://github.com/Squirrel/S
 
 ## Requirements
 
-This tool requires Node 8 or greater.
+This tool requires Node 10 or greater.
 
 I'd recommend building your packages on your target platform, but if you have to run this on Mac OS X or Linux, you will need to install `mono` and `wine` through your package manager.
 
@@ -368,7 +368,7 @@ Current version: 1.9.1
 To update [Squirrel](https://github.com/Squirrel/Squirrel.Windows) to the latest version, head over to the [releases page](https://www.nuget.org/packages/squirrel.windows/)
 
 ### NuGet
-Current version: 5.1.0
+Current version: 5.4.0
 
 To update [NuGet](https://github.com/nuget/home) to the latest version, head over to the [releases page](https://www.nuget.org/downloads).
 
