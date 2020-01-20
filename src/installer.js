@@ -5,8 +5,6 @@ const debug = require('debug')
 const fs = require('fs-extra')
 const parseAuthor = require('parse-author')
 const path = require('path')
-const { promisify } = require('util')
-const glob = promisify(require('glob'))
 
 const spawn = require('./spawn')
 
@@ -71,12 +69,9 @@ class SquirrelInstaller extends common.ElectronInstaller {
 
     const cmd = path.join(this.vendorDir, 'nuget', 'nuget.exe')
     const args = [
-      'pack',
-      this.specPath,
-      '-BasePath',
-      this.stagingAppDir,
-      '-OutputDirectory',
-      path.join(this.stagingDir, 'nuget'),
+      'pack', this.specPath,
+      '-BasePath', this.stagingAppDir,
+      '-OutputDirectory', path.join(this.stagingDir, 'nuget'),
       '-NoDefaultExcludes'
     ]
 
@@ -93,19 +88,6 @@ class SquirrelInstaller extends common.ElectronInstaller {
     this.options.logger(`Creating spec file at ${this.specPath}`)
 
     return common.wrapError('creating spec file', async () => this.createTemplatedFile(src, this.specPath))
-  }
-
-  /**
-   * Find the package just created.
-   */
-  findPackage () {
-    const packagePattern = path.join(this.stagingDir, 'nuget', '*.nupkg')
-    this.options.logger(`Finding package with pattern ${packagePattern}`)
-
-    return common.wrapError('finding package with pattern', async () => {
-      const files = await glob(packagePattern)
-      return files[0]
-    })
   }
 
   /**
@@ -198,7 +180,7 @@ class SquirrelInstaller extends common.ElectronInstaller {
     }
 
     return common.wrapError('releasifying package', async () => {
-      const pkg = await this.findPackage()
+      const pkg = path.join(this.stagingDir, 'nuget', `${this.options.name}.${this.options.version}.nupkg`)
       args.unshift('--releasify', pkg)
       return spawn(cmd, args, this.options.logger)
     })
