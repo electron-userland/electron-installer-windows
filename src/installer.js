@@ -139,8 +139,8 @@ class SquirrelInstaller extends common.ElectronInstaller {
     this.options.name = common.sanitizeName(this.options.name, 'a-zA-Z0-9', '_')
     if (this.options.iconNuget) this.options.iconNugetName = path.basename(this.options.iconNuget)
 
-    if (!this.options.description && !this.options.productDescription) {
-      throw new Error("No Description or ProductDescription provided. Please set either a description in the app's package.json or provide it in the this.options.")
+    if (!this.options.description) {
+      throw new Error("No Description provided. Please set a description in the app's package.json or provide it in the this.options.")
     }
 
     if (!this.options.authors) {

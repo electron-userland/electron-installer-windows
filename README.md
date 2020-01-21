@@ -243,13 +243,7 @@ Relative path to the executable created by Electron Packager. Note that [Electro
 Type: `String`
 Default: `package.description`
 
-Short description of the application, used in the [`summary` field of the `nuspec` file](https://docs.nuget.org/create/nuspec-reference).
-
-#### options.productDescription
-Type: `String`
-Default: `package.productDescription || package.description`
-
-Long description of the application, used in the [`description` field of the `nuspec` file](https://docs.nuget.org/create/nuspec-reference).
+A description of the application, used in the [`description` field of the `nuspec` file](https://docs.microsoft.com/en-us/nuget/reference/nuspec#description).
 
 #### options.version
 Type: `String`
