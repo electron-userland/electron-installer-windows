@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <% if (name) { %><id><%- name %></id><% } %>
+    <id><%- name %></id>
+    <version><%- version %></version>
+    <description><%- description %></description>
+    <authors><%- authors.join(', ') %></authors>
     <% if (productName) { %><title><%- productName %></title><% } %>
-    <% if (description) { %><description><%- description %></description><% } %>
-    <% if (version) { %><version><%- version %></version><% } %>
     <% if (copyright) { %><copyright><%- copyright %></copyright><% } %>
-    <% if (authors && authors.length) { %><authors><%- authors.join(', ') %></authors><% } %>
-    <% if (owners && owners.length) { %><owners><%- owners.join(', ') %></owners><% } %>
+    <% if (owners) { %><owners><%- owners.join(', ') %></owners><% } %>
     <% if (homepage) { %><projectUrl><%- homepage %></projectUrl><% } %>
-    <% if (iconNuget) { %><icon><%- iconNugetName %></icon><% } %>
     <% if (tags && tags.length) { %><tags><%- tags.join(' ') %></tags><% } %>
+    <% if (iconNuget) { %><icon><%- iconNugetName %></icon><% } %>
   </metadata>
   <files>
     <file src="locales\**" target="lib\net45\locales" />
