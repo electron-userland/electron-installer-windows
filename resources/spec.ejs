@@ -10,7 +10,7 @@
     <% if (authors && authors.length) { %><authors><%- authors.join(', ') %></authors><% } %>
     <% if (owners && owners.length) { %><owners><%- owners.join(', ') %></owners><% } %>
     <% if (homepage) { %><projectUrl><%- homepage %></projectUrl><% } %>
-    <% if (iconUrl) { %><iconUrl><%- iconUrl %></iconUrl><% } %>
+    <% if (iconNuget) { %><icon><%- iconNugetName %></icon><% } %>
     <% if (tags && tags.length) { %><tags><%- tags.join(' ') %></tags><% } %>
   </metadata>
   <files>
@@ -23,5 +23,6 @@
     <file src="icudtl.dat" target="lib\net45\icudtl.dat" />
     <file src="LICENSE" target="lib\net45\LICENSE" />
     <file src="<%- exe %>" target="lib\net45\<%- exe %>" />
+    <% if (iconNuget) { %> <file src="<%- iconNugetName %>" target="" /> <% } %>
   </files>
 </package>

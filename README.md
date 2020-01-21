@@ -293,11 +293,11 @@ Default: [`resources/icon.ico`](https://github.com/electron-userland/electron-in
 
 The path to an `.ico` file used for the generated `.exe` installer.
 
-#### options.iconUrl
+#### options.iconNuget
 Type: `String`
 Default: `undefined`
 
-URL for the image to use as the icon for the package in the *Manage NuGet Packages* dialog box, used in the [`iconUrl` field of the `spec` file](https://docs.nuget.org/create/nuspec-reference).
+The path to an image file use as the icon for the NuGet package, used in the [`icon` field of the `spec` file](https://docs.microsoft.com/en-us/nuget/reference/nuspec#icon).
 
 #### options.tags
 Type: `Array[String]`

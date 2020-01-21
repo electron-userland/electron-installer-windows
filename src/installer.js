@@ -52,6 +52,10 @@ class SquirrelInstaller extends common.ElectronInstaller {
    */
   async copyApplication () {
     await super.copyApplication()
+    if (this.options.iconNuget) {
+      const iconNuget = path.join(this.stagingAppDir, this.options.iconNugetName)
+      await super.copyIcon(this.options.iconNuget, iconNuget)
+    }
     return this.copySquirrelUpdater()
   }
 
@@ -110,7 +114,7 @@ class SquirrelInstaller extends common.ElectronInstaller {
       icon: path.resolve(__dirname, '../resources/icon.ico'),
       animation: path.resolve(__dirname, '../resources/animation.gif'),
 
-      iconUrl: undefined,
+      iconNuget: undefined,
 
       tags: [],
 
@@ -133,6 +137,7 @@ class SquirrelInstaller extends common.ElectronInstaller {
     super.generateOptions()
 
     this.options.name = common.sanitizeName(this.options.name, 'a-zA-Z0-9', '_')
+    if (this.options.iconNuget) this.options.iconNugetName = path.basename(this.options.iconNuget)
 
     if (!this.options.description && !this.options.productDescription) {
       throw new Error("No Description or ProductDescription provided. Please set either a description in the app's package.json or provide it in the this.options.")
