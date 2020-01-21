@@ -243,13 +243,7 @@ Relative path to the executable created by Electron Packager. Note that [Electro
 Type: `String`
 Default: `package.description`
 
-Short description of the application, used in the [`summary` field of the `nuspec` file](https://docs.nuget.org/create/nuspec-reference).
-
-#### options.productDescription
-Type: `String`
-Default: `package.productDescription || package.description`
-
-Long description of the application, used in the [`description` field of the `nuspec` file](https://docs.nuget.org/create/nuspec-reference).
+A description of the application, used in the [`description` field of the `nuspec` file](https://docs.microsoft.com/en-us/nuget/reference/nuspec#description).
 
 #### options.version
 Type: `String`
@@ -293,11 +287,11 @@ Default: [`resources/icon.ico`](https://github.com/electron-userland/electron-in
 
 The path to an `.ico` file used for the generated `.exe` installer.
 
-#### options.iconUrl
+#### options.iconNuget
 Type: `String`
 Default: `undefined`
 
-URL for the image to use as the icon for the package in the *Manage NuGet Packages* dialog box, used in the [`iconUrl` field of the `spec` file](https://docs.nuget.org/create/nuspec-reference).
+The path to an image file use as the icon for the NuGet package, used in the [`icon` field of the `spec` file](https://docs.microsoft.com/en-us/nuget/reference/nuspec#icon).
 
 #### options.tags
 Type: `Array[String]`
