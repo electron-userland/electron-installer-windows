@@ -28,5 +28,8 @@ module.exports = async function (cmd, args, logger) {
     args.unshift(cmd)
     cmd = 'mono'
   }
-  return spawn(cmd, args, logger, updateExecutableMissingException)
+  return spawn(cmd, args, {
+    logger,
+    updateErrorCallback: updateExecutableMissingException
+  })
 }
