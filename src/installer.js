@@ -48,6 +48,19 @@ class SquirrelInstaller extends common.ElectronInstaller {
   }
 
   /**
+   * Transforms a version string from semver v2 into v1
+   */
+  convertVersion () {
+    const [mainVersion, ...suffix] = this.options.version.split('-')
+
+    if (suffix.length > 0) {
+      this.options.version = [mainVersion, suffix.join('-').replace(/\./g, '')].join('-')
+    } else {
+      this.options.version = mainVersion
+    }
+  }
+
+  /**
    * Copy the application into the package.
    */
   async copyApplication () {
@@ -137,6 +150,9 @@ class SquirrelInstaller extends common.ElectronInstaller {
     super.generateOptions()
 
     this.options.name = common.sanitizeName(this.options.name, 'a-zA-Z0-9', '_')
+
+    this.convertVersion()
+
     if (this.options.iconNuget) this.options.iconNugetName = path.basename(this.options.iconNuget)
 
     if (!this.options.description) {

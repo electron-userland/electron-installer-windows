@@ -6,7 +6,9 @@ const Server = require('./helpers/server')
 describe('cli', function () {
   this.timeout(30000)
 
-  describeCLI('with an app with asar', true)
+  describeCLI('with an app with asar', true, {
+    version: '1.0.0-alpha.1'
+  })
 
   describeCLI('with an app without asar', false)
 
