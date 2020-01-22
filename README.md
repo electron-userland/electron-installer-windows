@@ -232,6 +232,7 @@ Type: `String`
 Default: `package.productName || package.name`
 
 Name of the application (e.g., `Atom`), used in the [`title` field of the `nuspec` file](https://docs.nuget.org/create/nuspec-reference).
+It is also used as the description when signing your msi installer.
 
 #### options.exe
 Type: `String`

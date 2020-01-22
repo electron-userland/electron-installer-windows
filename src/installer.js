@@ -176,7 +176,8 @@ class SquirrelInstaller extends common.ElectronInstaller {
       args.push('--signWithParams', [
         '/a',
         `/f "${path.resolve(this.options.certificateFile)}"`,
-        `/p "${this.options.certificatePassword}"`
+        `/p "${this.options.certificatePassword}"`,
+        `/d "${this.options.productName}"`
       ].join(' '))
     }
 
