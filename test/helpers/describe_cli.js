@@ -39,7 +39,7 @@ module.exports = function (desc, asar, options) {
 
   describe(desc, test => {
     before(async () => {
-      const logs = await spawn('./src/cli.js', args, null, null)
+      const logs = await spawn('./src/cli.js', args)
       printLogs(logs)
     })
 
