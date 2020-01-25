@@ -37,18 +37,20 @@ module.exports = function (desc, asar, options) {
   }
   if (options.remoteReleases) args.push('--remoteReleases', options.remoteReleases)
 
-  describe(desc, test => {
-    before(async () => {
+  describe(desc, function () {
+    before(async function () {
       const logs = await spawn('./src/cli.js', args)
       printLogs(logs)
     })
 
-    after(async () => fs.remove(options.dest))
+    after(function () {
+      return fs.remove(options.dest)
+    })
 
     accessAll(appName, options.dest, true)
 
     if (options.remoteReleases && asar) {
-      it('does not generate a delta `.nupkg` package', async () => {
+      it('does not generate a delta `.nupkg` package', async function () {
         return chai.expect(await fs.pathExists(`${options.dest}/${appName}-0.0.1-delta.nupkg'`)).to.be.false
       })
     }

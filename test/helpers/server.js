@@ -10,24 +10,21 @@ module.exports = class Server {
 
     this.port = port
     this.server = http.createServer((req, res) => {
-      const handler = finalHandler(req, res)
-      serve(req, res, handler)
+      serve(req, res, finalHandler(req, res))
     })
   }
 
-  runServer () {
-    return new Promise((resolve, reject) => {
-      this.server.listen(this.port, resolve)
-        .on('error', reject)
-    })
-  }
-
-  closeServer () {
-    return new Promise((resolve, reject) => {
-      this.server.close(err => {
-        if (err) return reject(err)
-        resolve()
+  runServer (done) {
+    this.server.listen(this.port, done)
+      .on('error', function (error) {
+        done(error)
       })
-    })
+  }
+
+  closeServer (done) {
+    this.server.close(done)
+      .on('error', function (error) {
+        done(error)
+      })
   }
 }

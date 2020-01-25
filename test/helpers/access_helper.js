@@ -5,8 +5,8 @@ const path = require('path')
 const retry = require('promise-retry')
 
 // `fs.access` which retries three times.
-async function testAccess (path) {
-  return retry((retry, number) => {
+function testAccess (path) {
+  return retry(function (retry, number) {
     return fs.access(path)
       .catch(retry)
   }, {
@@ -16,7 +16,9 @@ async function testAccess (path) {
 }
 
 function access (desc, dir, filename) {
-  it(desc, async () => testAccess(path.join(dir, filename)))
+  it(desc, function () {
+    return testAccess(path.join(dir, filename))
+  })
 }
 
 function accessAll (appName, dir, cli) {
