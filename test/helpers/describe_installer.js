@@ -11,15 +11,19 @@ const installer = require('../..')
 module.exports = function describeInstaller (desc, asar, testOptions) {
   const [appName, options] = installerOptions(asar, testOptions)
 
-  describe(desc, test => {
-    before(async () => installer(options))
+  describe(desc, function () {
+    before(function () {
+      return installer(options)
+    })
 
-    after(async () => fs.remove(options.dest))
+    after(function () {
+      return fs.remove(options.dest)
+    })
 
     accessAll(appName, options.dest, false)
 
     if (testOptions.remoteReleases && asar) {
-      it('does not generate a delta `.nupkg` package', async () => {
+      it('does not generate a delta `.nupkg` package', async function () {
         try {
           await testAccess(`${options.dest}/${appName}-0.0.1-delta.nupkg`)
           throw new Error('delta `.nupkg` was created')
@@ -39,8 +43,8 @@ module.exports.describeInstallerWithException = function describeInstallerWithEx
   const [, options] = installerOptions(false, testOptions)
   options.src = testOptions.src
 
-  describe(desc, test => {
-    it('throws an error', async () => {
+  describe(desc, function () {
+    it('throws an error', async function () {
       try {
         await installer(options)
       } catch (error) {
@@ -48,7 +52,9 @@ module.exports.describeInstallerWithException = function describeInstallerWithEx
       }
     })
 
-    after(async () => fs.remove(options.dest))
+    after(function () {
+      return fs.remove(options.dest)
+    })
   })
 }
 
