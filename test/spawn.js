@@ -13,10 +13,16 @@ describe('spawn', () => {
 
   it('should throw a human-friendly error when it cannot find mono', async () => {
     try {
-      await spawn('mono', ['--version'], msg => { })
+      let cmd = 'mono'
+      let args = ['--version']
+      if (process.platform !== 'win32') {
+        cmd = '--version'
+        args = []
+      }
+      await spawn(cmd, args, msg => { })
       throw new Error('mono should not have been executed')
     } catch (error) {
-      chai.expect(error.message).to.match(/Error executing command \(Your system is missing the mono/)
+      chai.expect(error.message).to.match(/Error executing command \(mono --version\):\nYour system is missing the mono/)
     }
   })
 
