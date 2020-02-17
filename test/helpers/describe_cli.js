@@ -2,7 +2,7 @@
 
 const chai = require('chai')
 const fs = require('fs-extra')
-const { spawn } = require('electron-installer-common')
+const { spawn } = require('@malept/cross-spawn-promise')
 const tmp = require('tmp-promise')
 const { access, accessAll } = require('./access_helper')
 
