@@ -51,7 +51,7 @@ module.exports = function (desc, asar, options) {
 
     if (options.remoteReleases && asar) {
       it('does not generate a delta `.nupkg` package', async function () {
-        return chai.expect(await fs.pathExists(`${options.dest}/${appName}-0.0.1-delta.nupkg'`)).to.be.false
+        return chai.expect(await fs.pathExists(`${options.dest}/${appName}-0.0.1-delta.nupkg`)).to.be.false
       })
     }
 
