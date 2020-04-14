@@ -1,6 +1,7 @@
 {
   "extends": [
     "standard",
-    "plugin:promise/recommended"
+    "plugin:promise/recommended",
+    "plugin:ava/recommended"
   ]
 }

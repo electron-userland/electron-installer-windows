@@ -22,11 +22,14 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "spec": "mocha",
+    "spec": "ava",
     "test": "npm run lint && npm run spec"
   },
   "engines": {
     "node": ">=8.0.0"
+  },
+  "ava": {
+    "timeout": "30s"
   },
   "dependencies": {
     "@malept/cross-spawn-promise": "^1.0.0",
@@ -39,15 +42,15 @@
     "yargs": "^16.0.2"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
+    "ava": "^3.6.0",
     "eslint": "^7.2.0",
     "eslint-config-standard": "^16.0.0",
+    "eslint-plugin-ava": "^10.2.0",
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^5.0.0",
     "finalhandler": "^1.1.2",
-    "mocha": "^8.0.1",
     "promise-retry": "^2.0.1",
     "serve-static": "^1.14.1",
     "tmp-promise": "^3.0.2"
