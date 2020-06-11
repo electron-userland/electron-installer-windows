@@ -47,7 +47,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "finalhandler": "^1.1.2",
-    "mocha": "^7.0.0",
+    "mocha": "^8.0.1",
     "promise-retry": "^1.1.1",
     "serve-static": "^1.14.1",
     "tmp-promise": "^3.0.2"
