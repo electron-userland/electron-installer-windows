@@ -9,7 +9,7 @@ This tool relies on the awesome [Squirrel.Windows](https://github.com/Squirrel/S
 
 ## Requirements
 
-This tool requires Node 10 or greater.
+This tool requires Node 12 or greater.
 
 I'd recommend building your packages on your target platform, but if you have to run this on Mac OS X or Linux, you will need to install `mono` and `wine` through your package manager.
 
