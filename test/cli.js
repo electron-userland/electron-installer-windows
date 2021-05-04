@@ -4,7 +4,7 @@ const describeCLI = require('./helpers/describe_cli')
 const Server = require('./helpers/server')
 
 describe('cli', function () {
-  this.timeout(30000)
+  this.timeout(60000)
 
   describeCLI('with an app with asar', true, {
     version: '1.0.0-alpha.1'
@@ -26,6 +26,8 @@ describe('cli', function () {
   }
 
   describe('with a releases server', function (test) {
+    this.timeout(90000)
+
     const server = new Server('test/fixtures/releases/', 3000)
 
     before(function (done) { server.runServer(done) })
