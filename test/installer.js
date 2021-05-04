@@ -5,7 +5,7 @@ const { describeInstallerWithException } = require('./helpers/describe_installer
 const Server = require('./helpers/server')
 
 describe('module', function () {
-  this.timeout(30000)
+  this.timeout(60000)
 
   describeInstaller('with an app with asar', true, {
     iconNuget: 'test/fixtures/icon.ico'
