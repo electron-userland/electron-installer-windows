@@ -54,6 +54,8 @@ describe('module', function () {
   }
 
   describe('with a releases server', function (test) {
+    this.timeout(90000)
+
     const server = new Server('test/fixtures/releases/', 3000)
 
     before(function (done) { server.runServer(done) })
