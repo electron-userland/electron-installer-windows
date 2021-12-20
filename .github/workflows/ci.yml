@@ -15,12 +15,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'windows-latest']
+        os: ['ubuntu-18.04', 'windows-latest']
         node-version: [12, 14, 16]
 
     steps:
       - name: Install Linux dependencies
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-18.04'
         run: |
           sudo dpkg --add-architecture i386 && sudo apt-get update
           sudo apt-get install wine-stable
