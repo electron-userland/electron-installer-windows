@@ -23,7 +23,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo dpkg --add-architecture i386 && sudo apt-get update
-          sudo apt-get install wine-stable
+          sudo apt-get install wine-stable wine32:i386 wine64
       - name: Fix git checkout line endings
         run: git config --global core.autocrlf input
       - name: Get source code
